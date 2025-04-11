@@ -23,7 +23,7 @@ function getAllQuotes() {
     $Quotes = array();
     while ($row = mysqli_fetch_assoc($result)) {
         $id_documento = $row['numero'];
-        $detalle_result = mysqli_query($link, "SELECT k.producto as producto, k.cantidad as cantidad, k.precio_unitario as precio_unitario, k.precio_total as precio_total 
+        $detalle_result = mysqli_query($link, "SELECT k.producto as producto, k.descripcion as descripcion, k.cantidad as cantidad, k.precio_unitario as precio_unitario, k.precio_total as precio_total 
                                                FROM kardex as k 
                                                WHERE k.id_documento = '$id_documento';");
         

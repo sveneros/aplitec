@@ -28,7 +28,11 @@ include("funciones.php");
 		CreaDocumento($numero_documento,$id_tipo_documento,$id_cliente,"0",$fecha,$glosa,$descuento,$usuario,$total,$total,0,'V');
 		logs_db("Se agrego el documento: ". $numero_documento." de tipo: ". $id_tipo_documento  , $_SERVER['PHP_SELF']);
 		foreach ($productsArr as list($a, $b,$c,$d,$e)) {
-			CreaKardex($numero_documento,$id_tipo_documento,$b,$c,$d,$e,0);
+			$nombre=devuelve_campo("productos","nombre","id",$a);
+			$descripcion=devuelve_campo("productos","descripcion","id",$a);
+			$id_marca=devuelve_campo("productos","id_marca","id",$a);
+			$marca=devuelve_campo("marcas","descripcion","id",$id_marca);
+			CreaKardex($numero_documento,$id_tipo_documento,$nombre,$descripcion,$id_marca, $marca,$c,$d,$e,0);
 			logs_db("Se agrego el Kardex para el producto: ". $b." con datos: ". $c .",".$d , $_SERVER['PHP_SELF']);
 			}			
 		if (!isset($numero_documento)) {

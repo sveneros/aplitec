@@ -28,7 +28,6 @@ try {
         'cliente_menos_cotizaciones' => ejecutarAlgoritmoClienteMenosCotizaciones($pdo),
         'marca_mas_cotizada' => ejecutarAlgoritmoMarcaMasCotizada($pdo),
         'marca_menos_cotizada' => ejecutarAlgoritmoMarcaMenosCotizada($pdo),
-        //'productos_mas_solicitados' => ejecutarAlgoritmoGenetico($pdo) // El original
     ];
     
     $response['success'] = true;
@@ -56,7 +55,6 @@ function ejecutarAlgoritmoClienteMasCotizaciones(PDO $pdo, int $generaciones = 3
         $poblacion = evolucionarPoblacionClientes($poblacion, $pdo, 'max');
     }
     
-    //return ['cliente' => $poblacion[0], 'cotizaciones' => contarCotizacionesCliente($poblacion[0], $pdo)];
     $nombre = devuelve_campo("clientes","nombre","id",$poblacion[0]);
     $apellido1 = devuelve_campo("clientes","apellido1","id",$poblacion[0]);
     $apellido2 = devuelve_campo("clientes","apellido2","id",$poblacion[0]);
@@ -79,7 +77,6 @@ function ejecutarAlgoritmoClienteMenosCotizaciones(PDO $pdo, int $generaciones =
         $poblacion = evolucionarPoblacionClientes($poblacion, $pdo, 'min');
     }
     
-    //return ['cliente' => $poblacion[0], 'cotizaciones' => contarCotizacionesCliente($poblacion[0], $pdo)];
     $nombre = devuelve_campo("clientes","nombre","id",$poblacion[0]);
     $apellido1 = devuelve_campo("clientes","apellido1","id",$poblacion[0]);
     $apellido2 = devuelve_campo("clientes","apellido2","id",$poblacion[0]);
@@ -102,7 +99,8 @@ function ejecutarAlgoritmoMarcaMasCotizada(PDO $pdo, int $generaciones = 30, int
         $poblacion = evolucionarPoblacionMarcas($poblacion, $pdo, 'max');
     }
     
-    return ['marca' => $poblacion[0], 'cotizaciones' => contarCotizacionesMarca($poblacion[0], $pdo)];
+    $descripcion = devuelve_campo("marcas", "descripcion", "id", $poblacion[0]);
+    return ['marca' => $descripcion, 'cotizaciones' => contarCotizacionesMarca($poblacion[0], $pdo)];
 }
 
 /**
@@ -121,7 +119,8 @@ function ejecutarAlgoritmoMarcaMenosCotizada(PDO $pdo, int $generaciones = 30, i
         $poblacion = evolucionarPoblacionMarcas($poblacion, $pdo, 'min');
     }
     
-    return ['marca' => $poblacion[0], 'cotizaciones' => contarCotizacionesMarca($poblacion[0], $pdo)];
+    $descripcion = devuelve_campo("marcas", "descripcion", "id", $poblacion[0]);
+    return ['marca' => $descripcion, 'cotizaciones' => contarCotizacionesMarca($poblacion[0], $pdo)];
 }
 
 /* FUNCIONES AUXILIARES COMUNES */
@@ -131,34 +130,22 @@ function obtenerClientesUnicos(PDO $pdo): array {
 }
 
 function obtenerMarcasUnicas(PDO $pdo): array {
-    $stmt = $pdo->query("SELECT DISTINCT 
-                         CASE 
-                            WHEN producto LIKE '%BW TECHNOLOGIES%' THEN 'BW TECHNOLOGIES'
-                            WHEN producto LIKE '%FLUKE%' THEN 'FLUKE'
-                            WHEN producto LIKE '%CAMPBELL SCIENTIFIC%' THEN 'CAMPBELL SCIENTIFIC'
-                            WHEN producto LIKE '%LIFELOC%' THEN 'LIFELOC'
-                            WHEN producto LIKE '%SOLAR%' THEN 'SOLAR'
-                            WHEN producto LIKE '%SOLINST%' THEN 'SOLINST'
-                            WHEN producto LIKE '%TESTO%' THEN 'TESTO'
-                            ELSE NULL
-                         END as marca
-                         FROM kardex
-                         HAVING marca IS NOT NULL");
+    $stmt = $pdo->query("SELECT DISTINCT id_marca FROM kardex WHERE id_marca > 0");
     return $stmt->fetchAll(PDO::FETCH_COLUMN);
 }
+
 function contarCotizacionesCliente(int $idCliente, PDO $pdo): int {
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM documentos WHERE id_cliente = ?");
     $stmt->execute([$idCliente]);
     return (int)$stmt->fetchColumn();
 }
 
-function contarCotizacionesMarca(string $marca, PDO $pdo): int {
+function contarCotizacionesMarca(int $idMarca, PDO $pdo): int {
     $stmt = $pdo->prepare("SELECT COUNT(k.id) 
                           FROM kardex k
                           JOIN documentos d ON k.id_documento = d.id_documento
-                          WHERE k.producto LIKE ?");
-    $likePattern = ($marca == 'Fluke') ? '%Fluke%' : '%';
-    $stmt->execute([$likePattern]);
+                          WHERE k.id_marca = ?");
+    $stmt->execute([$idMarca]);
     return (int)$stmt->fetchColumn();
 }
 
@@ -180,31 +167,26 @@ function inicializarPoblacionMarcas(array $marcas, int $tamanoPoblacion): array 
 }
 
 function evolucionarPoblacionClientes(array $poblacion, PDO $pdo, string $tipo = 'max'): array {
-    // Ordenar por fitness
     usort($poblacion, function($a, $b) use ($pdo, $tipo) {
         $cotizacionesA = contarCotizacionesCliente($a, $pdo);
         $cotizacionesB = contarCotizacionesCliente($b, $pdo);
         return ($tipo == 'max') ? ($cotizacionesB <=> $cotizacionesA) : ($cotizacionesA <=> $cotizacionesB);
     });
     
-    // Seleccionar los mejores (50%)
     $mejores = array_slice($poblacion, 0, (int)(count($poblacion) / 2));
     
-    // Cruzar y mutar
     $nuevaGeneracion = $mejores;
     $todosClientes = obtenerClientesUnicos($pdo);
     
     while (count($nuevaGeneracion) < count($poblacion)) {
-        // 80% de probabilidad de cruce, 20% de nueva solución aleatoria
         if (rand(1, 100) <= 80 && count($mejores) >= 2) {
             $padre1 = $mejores[array_rand($mejores)];
             $padre2 = $mejores[array_rand($mejores)];
-            $hijo = (rand(0, 1)) ? $padre1 : $padre2; // "Cruce" simple
+            $hijo = (rand(0, 1)) ? $padre1 : $padre2;
         } else {
             $hijo = $todosClientes[array_rand($todosClientes)];
         }
         
-        // 10% de probabilidad de mutación
         if (rand(1, 100) <= 10) {
             $hijo = $todosClientes[array_rand($todosClientes)];
         }
@@ -216,39 +198,33 @@ function evolucionarPoblacionClientes(array $poblacion, PDO $pdo, string $tipo =
 }
 
 function evolucionarPoblacionMarcas(array $poblacion, PDO $pdo, string $tipo = 'max'): array {
-    // 1. Ordenar la población por fitness (cotizaciones)
     usort($poblacion, function($a, $b) use ($pdo, $tipo) {
         $cotizacionesA = contarCotizacionesMarca($a, $pdo);
         $cotizacionesB = contarCotizacionesMarca($b, $pdo);
         return ($tipo == 'max') ? ($cotizacionesB <=> $cotizacionesA) : ($cotizacionesA <=> $cotizacionesB);
     });
     
-    // 2. Seleccionar los mejores (50% superior)
     $mejores = array_slice($poblacion, 0, (int)(count($poblacion) / 2));
     
-    // 3. Cruzar y mutar para crear nueva generación
     $nuevaGeneracion = $mejores;
     $todasMarcas = obtenerMarcasUnicas($pdo);
     
     while (count($nuevaGeneracion) < count($poblacion)) {
-        // 80% de probabilidad de cruce, 20% de nueva solución aleatoria
         if (rand(1, 100) <= 80 && count($mejores) >= 2) {
             $padre1 = $mejores[array_rand($mejores)];
             $padre2 = $mejores[array_rand($mejores)];
-            $hijo = (rand(0, 1)) ? $padre1 : $padre2; // "Cruce" simple (selección de un padre)
+            $hijo = (rand(0, 1)) ? $padre1 : $padre2;
         } else {
-            $hijo = $todasMarcas[array_rand($todasMarcas)]; // Nueva solución aleatoria
+            $hijo = $todasMarcas[array_rand($todasMarcas)];
         }
         
-        // 15% de probabilidad de mutación
         if (rand(1, 100) <= 15) {
-            $hijo = $todasMarcas[array_rand($todasMarcas)]; // Mutación: cambiar a marca aleatoria
+            $hijo = $todasMarcas[array_rand($todasMarcas)];
         }
         
         $nuevaGeneracion[] = $hijo;
     }
     
-    // 4. Asegurar diversidad en la nueva generación
     if (count(array_unique($nuevaGeneracion)) < 2 && count($todasMarcas) > 1) {
         $nuevaGeneracion[array_rand($nuevaGeneracion)] = $todasMarcas[array_rand($todasMarcas)];
     }
@@ -257,14 +233,21 @@ function evolucionarPoblacionMarcas(array $poblacion, PDO $pdo, string $tipo = '
 }
 
 /* FUNCIONES DIRECTAS PARA CASOS CON POCOS DATOS */
-
 function obtenerClienteMasCotizacionesDirectamente(PDO $pdo): array {
     $stmt = $pdo->query("SELECT id_cliente, COUNT(*) as cotizaciones 
                         FROM documentos 
                         GROUP BY id_cliente 
                         ORDER BY cotizaciones DESC 
                         LIMIT 1");
-    return $stmt->fetch(PDO::FETCH_ASSOC);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($result) {
+        $nombre = devuelve_campo("clientes","nombre","id",$result['id_cliente']);
+        $apellido1 = devuelve_campo("clientes","apellido1","id",$result['id_cliente']);
+        $apellido2 = devuelve_campo("clientes","apellido2","id",$result['id_cliente']);
+        return ['cliente' => $nombre . " ". $apellido1. " ". $apellido2, 'cotizaciones' => $result['cotizaciones']];
+    }
+    return ['cliente' => '', 'cotizaciones' => 0];
 }
 
 function obtenerClienteMenosCotizacionesDirectamente(PDO $pdo): array {
@@ -273,34 +256,35 @@ function obtenerClienteMenosCotizacionesDirectamente(PDO $pdo): array {
                         GROUP BY id_cliente 
                         ORDER BY cotizaciones ASC 
                         LIMIT 1");
-    return $stmt->fetch(PDO::FETCH_ASSOC);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($result) {
+        $nombre = devuelve_campo("clientes","nombre","id",$result['id_cliente']);
+        $apellido1 = devuelve_campo("clientes","apellido1","id",$result['id_cliente']);
+        $apellido2 = devuelve_campo("clientes","apellido2","id",$result['id_cliente']);
+        return ['cliente' => $nombre . " ". $apellido1. " ". $apellido2, 'cotizaciones' => $result['cotizaciones']];
+    }
+    return ['cliente' => '', 'cotizaciones' => 0];
 }
 
 function obtenerMarcaMasCotizadaDirectamente(PDO $pdo): array {
-    $stmt = $pdo->query("SELECT 
-                         CASE 
-                            WHEN producto LIKE '%Fluke%' THEN 'Fluke'
-                            ELSE 'Otras'
-                         END as marca,
-                         COUNT(*) as cotizaciones
-                         FROM kardex
-                         GROUP BY marca
+    $stmt = $pdo->query("SELECT k.id_marca, m.descripcion as marca, COUNT(*) as cotizaciones
+                         FROM kardex k
+                         JOIN marcas m ON k.id_marca = m.id
+                         WHERE k.id_marca > 0
+                         GROUP BY k.id_marca, m.descripcion
                          ORDER BY cotizaciones DESC
                          LIMIT 1");
-    return $stmt->fetch(PDO::FETCH_ASSOC);
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: ['marca' => '', 'cotizaciones' => 0];
 }
 
 function obtenerMarcaMenosCotizadaDirectamente(PDO $pdo): array {
-    $stmt = $pdo->query("SELECT 
-                         CASE 
-                            WHEN producto LIKE '%Fluke%' THEN 'Fluke'
-                            ELSE 'Otras'
-                         END as marca,
-                         COUNT(*) as cotizaciones
-                         FROM kardex
-                         GROUP BY marca
+    $stmt = $pdo->query("SELECT k.id_marca, m.descripcion as marca, COUNT(*) as cotizaciones
+                         FROM kardex k
+                         JOIN marcas m ON k.id_marca = m.id
+                         WHERE k.id_marca > 0
+                         GROUP BY k.id_marca, m.descripcion
                          ORDER BY cotizaciones ASC
                          LIMIT 1");
-    return $stmt->fetch(PDO::FETCH_ASSOC);
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: ['marca' => '', 'cotizaciones' => 0];
 }
-?>

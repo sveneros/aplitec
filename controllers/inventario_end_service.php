@@ -13,7 +13,10 @@ include("funciones.php");
 	if (isset($_POST['id_producto']) && isset($_POST['id_usuario']) && isset($_POST['fecha_vencimiento']) && isset($_POST['costo']) && isset($_POST['precio'])&& isset($_POST['cantidad'])&& isset($_POST['ubicacion']) ) {
 		
 		$id_producto=$_POST['id_producto'];
-		$producto=devuelve_campo("productos","descripcion","id",$id_producto);
+		$nombre=devuelve_campo("productos","nombre","id",$id_producto);
+		$descripcion=devuelve_campo("productos","descripcion","id",$id_producto);
+		$id_marca=devuelve_campo("productos","id_marca","id",$id_producto);
+		$marca=devuelve_campo("marcas","descripcion","id",$id_marca);
 		$id_almacen_origen=$_POST['id_almacen_origen'];
 		$id_cliente=0;
 		$id_almacen_destino=0;
@@ -38,7 +41,7 @@ include("funciones.php");
 		CreaDocumento($numero_documento,$id_tipo_documento,$id_almacen_origen,$id_almacen_destino,$id_cliente,$tipo_cambio,$fecha,$glosa,$descuento,$usuario,$precio_total,$precio_total,0,'V');
 		logs("Se creo el documento: ".$numero_documento ." tipo: ".$id_tipo_documento." | usuario: ". $_SESSION['sml2020_svenerossys_usuario_registrado'], $_SERVER['PHP_SELF']);
 		//CreaKardex($id_documento,$id_tipo_documento,$producto,$cantidad,$precio_unitario,$precio_total,$descuento
-		CreaKardex($numero_documento,$id_tipo_documento,$producto,$cantidad,$precio,$precio_total,0);
+		CreaKardex($numero_documento,$id_tipo_documento,$nombre,$descripcion,$id_marca, $marca,$cantidad,$precio,$precio_total,0);
 		logs("Se creo el Kardex: ".$numero_documento ." tipo: ".$id_tipo_documento." | usuario: ". $_SESSION['sml2020_svenerossys_usuario_registrado'], $_SERVER['PHP_SELF']);
 		
 		

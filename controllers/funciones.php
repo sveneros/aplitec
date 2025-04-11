@@ -25,9 +25,9 @@ function CreaDocumento($id_documento,$id_tipo_documento,$id_cliente,$tipo_cambio
 	VALUES ('$id_documento', '$id_tipo_documento', '$id_cliente', '$tipo_cambio', '$fecha','$glosa', '$descuento', '$usuario', '$total', '$efectivo', '$cambio', '$estado');");
 }
 
-function CreaKardex($id_documento,$id_tipo_documento,$id_producto,$cantidad,$precio_unitario,$precio_total,$descuento){
+function CreaKardex($id_documento,$id_tipo_documento,$nombre,$descripcion, $id_marca, $marca,$cantidad,$precio_unitario,$precio_total,$descuento){
 	$link = conectarse();
-	mysqli_query($link,"INSERT INTO `kardex` (`id`, `id_documento`,`id_tipo_documento`, `producto`, `cantidad`, `precio_unitario`, `precio_total`, `descuento`) VALUES (NULL, '$id_documento', '$id_tipo_documento', '$id_producto', '$cantidad', '$precio_unitario','$precio_total', '$descuento');");}
+	mysqli_query($link,"INSERT INTO `kardex` (`id`, `id_documento`,`id_tipo_documento`, `producto`, `descripcion`,`id_marca`,`marca`, `cantidad`, `precio_unitario`, `precio_total`, `descuento`) VALUES (NULL, '$id_documento', '$id_tipo_documento', '$nombre', '$descripcion','$id_marca','$marca', '$cantidad', '$precio_unitario','$precio_total', '$descuento');");}
 
 function CreaPago($id_documento,$id_tipo_documento,$id_almacen,$id_usuario,$fecha,$monto,$estado){
 	$link = conectarse();

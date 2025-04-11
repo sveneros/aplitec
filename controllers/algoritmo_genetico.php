@@ -145,6 +145,10 @@ function generarRegistrosPrueba(PDO $pdo, array $productos, int $totalRegistros)
     // Tipos de documento (5 = cotizaciones)
     $tipoDocumento = 5;
     
+    // Obtener marcas disponibles
+    $stmtMarcas = $pdo->query("SELECT id FROM marcas WHERE estado = 'V'");
+    $marcas = $stmtMarcas->fetchAll(PDO::FETCH_COLUMN);
+    
     // Generar documentos y sus detalles (kardex)
     for ($i = 1; $i <= $totalRegistros; $i++) {
         $idDocumento = 2000 + $i;
@@ -171,11 +175,24 @@ function generarRegistrosPrueba(PDO $pdo, array $productos, int $totalRegistros)
             $precioUnitario = rand(50, 1000) + (rand(0, 99) / 100);
             $precioTotal = round($cantidad * $precioUnitario, 2);
             $total += $precioTotal;
+            $idMarca = $marcas[array_rand($marcas)];
+            $marca = devuelve_campo("marcas", "descripcion", "id", $idMarca);
             
-            // Insertar en kardex
-            $stmtKar = $pdo->prepare("INSERT INTO kardex (id_documento, id_tipo_documento, producto, cantidad, precio_unitario, precio_total, descuento) 
-                                     VALUES (?, ?, ?, ?, ?, ?, 0)");
-            $stmtKar->execute([$idDocumento, $tipoDocumento, $producto, $cantidad, $precioUnitario, $precioTotal]);
+            // Insertar en kardex con la nueva estructura
+            $stmtKar = $pdo->prepare("INSERT INTO kardex 
+                                    (id_documento, id_tipo_documento, producto, descripcion, id_marca, marca, cantidad, precio_unitario, precio_total, descuento) 
+                                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)");
+            $stmtKar->execute([
+                $idDocumento, 
+                $tipoDocumento, 
+                $producto, 
+                "Descripción de prueba para $producto",
+                $idMarca,
+                $marca,
+                $cantidad, 
+                $precioUnitario, 
+                $precioTotal
+            ]);
         }
         
         // Completar e insertar documento
@@ -312,4 +329,3 @@ function obtenerProductosMasSolicitadosDirectamente(PDO $pdo): array {
     $stmt = $pdo->query("SELECT producto, SUM(cantidad) as total FROM kardex GROUP BY producto ORDER BY total DESC");
     return $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 }
-?>

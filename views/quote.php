@@ -176,7 +176,7 @@ function renderizarQuote(quote) {
         html += `
             <tr>
                 <td>${index + 1}</td>
-                <td class="f-s-14"><p class="text-elips mb-0">${detalle.producto}</p></td>
+                <td class="f-s-14"><p class="text-elips mb-0"><b>${detalle.producto}</b><br>${detalle.descripcion}</p></td>
                 <td>${detalle.cantidad}</td>
                 <td class="precio-unitario">${formatearMoneda(detalle.precio_unitario, 'BS')}</td>
                 <td class="precio-total">${formatearMoneda(detalle.precio_total, 'BS')}</td>
