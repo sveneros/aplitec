@@ -6,10 +6,10 @@
 <div class="container-fluid">
     <div class="row m-1">
         <div class="col-12">
-            <h4 class="main-title">Gestor de Imágenes</h4>
+            <h4 class="main-title">Gestor Media</h4>
             <ul class="app-line-breadcrumbs mb-3">
                 <li><a href="#"><i class="ph-duotone ph-image"></i> Media</a></li>
-                <li class="active">Gestor de Imágenes</li>
+                <li class="active">Gestor Media</li>
             </ul>
         </div>
     </div>

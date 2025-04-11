@@ -183,12 +183,11 @@
                                     <thead>
                                         <tr>
                                             <th>Nombre</th>
-                                            <th>Apellido 1</th>
-                                            <th>Apellido 2</th>
-                                            <th>Teléfono</th>
+                                            <th>Apellido Paterno</th>
+                                            <th>Apellido Materno</th>
                                             <th>Celular</th>
                                             <th>Email</th>
-                                            <th>Opciones</th>
+                                            <th>Seleccionar</th>
                                         </tr>
                                     </thead>
                                     <tbody id="DetalleTablaClientes">
@@ -210,13 +209,12 @@
                                             <tr>
 
                                                 <th>Código</th>
-                                                <th>Nombre</th>
+                                               
                                                 <th>Descripción</th>
                                                 <th>Marca</th>
-                                                <th>Categoría</th>
+                                               
                                                 <th>Precio BS.</th>
-                                                <th>Estado</th>
-                                                <th>Opciones</th>
+                                                <th>Seleccionar</th>
                                             </tr>
                                         </thead>
                                         <tbody id="DetalleTabla">
@@ -402,16 +400,15 @@ function ObtenerProductosIngreso() {
     const est = value.estado === 'V' ?
       '<span class="badge rounded-pill bg-success badge-notification">HABILITADO</span>' :
       '<span class="badge rounded-pill bg-danger badge-notification">DESHABILITADO</span>';
-    const edi = '<button class="btn btn-info" onclick="Editar(\'' + value.id + '\')"><i class="fa fa-shopping-cart"></i></button>';
+    const edi = '<button class="btn btn-info" onclick="Editar(\'' + value.id + '\')"><i class="fa fa-shopping-cart"></i><i class="ti ti-arrow-right"></button>';
     html += `
       <tr role="row" class="odd">
         <td class="sorting_1">${value.producto_codigo}</td>
-        <td>${value.nombre}</td>
-        <td>${value.producto_descripcion}</td>
+        
+        <td><b>${value.nombre}</b><br>${value.producto_descripcion}</td>
         <td>${value.marca}</td>
-        <td>${value.categoria}</td>
+        
         <td> ${value.puntos}</td>
-        <td>${est}</td>
         <td>${edi}</td>
       </tr>
         `;
@@ -463,7 +460,6 @@ function ObtenerProductosIngreso() {
         <td class="sorting_1">${value.nombre}</td>
         <td>${value.apellido1}</td>
         <td>${value.apellido2}</td>
-        <td>${value.cel1}</td>
         <td> ${value.cel2}</td>
         <td> ${value.email}</td>
         <td>${edi}</td>
@@ -499,7 +495,7 @@ function Editar(elId){
        $.each(localData,function(key,value){
         if (value.id===elId) { 
         $('#carrito_id_producto').val(value.id);
-        $('#carrito_descripcion').val(value.descripcion);
+        $('#carrito_descripcion').val(value.producto_nombre);
         precio=parseFloat(value.puntos);
         $('#carrito_precio').val(precio.toFixed(2));
         //$('#carrito_cantidad').prop('max', value.existencias); 
