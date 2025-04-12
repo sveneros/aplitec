@@ -25,7 +25,7 @@
                     </div>
                 </div>
             </div>
-            <a role="button" href="../index.php" class="btn btn-lg btn-lg btn-danger"><i class="ti ti-home"></i> Volver al inicio</a>
+            <a role="button" href="../index.php" class="btn btn-lg btn-lg btn-danger"><i class="ti ti-home"></i> Volver al inicio ahora</a>
         </div>
     </div>
 </div>
