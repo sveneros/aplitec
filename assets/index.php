@@ -30,8 +30,6 @@
     </div>
 </div>
 
-<!-- essential   -->
-
 <!-- latest jquery-->
 <script src="../assets/js/jquery-3.6.3.min.js"></script>
 
