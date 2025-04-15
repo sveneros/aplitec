@@ -35,8 +35,8 @@ include('../layout/header.php');
     ?>
 
 <!-- Include jsPDF library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script src="../assets/js/jspdf.umd.min.js"></script>
+<script src="../assets/js/jspdf.plugin.autotable.min.js"></script>
 
 <script>
 // Variables globales
@@ -297,7 +297,7 @@ function generatePDF() {
     function addHeader() {
         // Logo
         var imgData = '../assets/images/logo/1.png';
-        doc.addImage(imgData, 'PNG', margin, currentY, 40, 15);
+        doc.addImage(imgData, 'PNG', margin, currentY, 55, 15);
         
         // Información de la empresa
         doc.setFontSize(10);
@@ -365,7 +365,7 @@ function generatePDF() {
             item: {cellWidth: 10},
             codigo: {cellWidth: 20},
             cantidad: {cellWidth: 15},
-            descripcion: {cellWidth: 70},
+            descripcion: {cellWidth: 85},
             precio_unitario: {cellWidth: 25, halign: 'right'},
             precio_total: {cellWidth: 25, halign: 'right'}
         },
@@ -375,7 +375,7 @@ function generatePDF() {
             doc.setFontSize(8);
             for (var i = 1; i <= pageCount; i++) {
                 doc.setPage(i);
-                doc.text(`Página ${i} de ${pageCount}`, pageWidth - margin, doc.internal.pageSize.getHeight() - 10);
+                doc.text(`Página ${i} de ${pageCount}`, pageWidth -10 - margin, doc.internal.pageSize.getHeight() - 10);
             }
         }
     });
