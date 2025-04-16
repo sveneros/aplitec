@@ -16,14 +16,37 @@ header('Content-Type: application/json');
 function getAllProducts() {
     $link = conectarse();
     $result = mysqli_query($link, "SELECT p.id, p.nombre as producto_nombre, p.codigo as producto_codigo, 
-                                  p.descripcion as producto_descripcion, p.nombre, p.id_categoria, 
-                                  p.id_marca, m.descripcion as marca, c.descripcion as categoria, 
-                                  puntos, p.estado 
-                                  FROM productos as p 
-                                  INNER JOIN marcas as m ON p.id_marca = m.id 
-                                  INNER JOIN categorias as c ON p.id_categoria = c.id");
+       p.descripcion as producto_descripcion, p.id_categoria, 
+       p.id_marca, m.descripcion as marca, c.descripcion as categoria, 
+       puntos, p.estado,
+       (
+           SELECT JSON_ARRAYAGG(JSON_OBJECT('ruta', i.ruta, 'id', i.id))
+           FROM (
+               SELECT ruta, id 
+               FROM imagenes 
+               WHERE entidad_tipo = 'producto' AND entidad_id = p.id
+               LIMIT 5
+           ) i
+       ) as imagenes
+FROM productos as p 
+INNER JOIN marcas as m ON p.id_marca = m.id 
+INNER JOIN categorias as c ON p.id_categoria = c.id");
     $products = [];
     while ($row = mysqli_fetch_assoc($result)) {
+        // Procesar imágenes
+        $row['imagenes'] = [];
+        if (!empty($row['imagenes'])) {
+            $imagePairs = explode(',', $row['imagenes']);
+            foreach ($imagePairs as $pair) {
+                $parts = explode('|||', $pair);
+                if (count($parts) === 2) {
+                    $row['imagenes'][] = [
+                        'ruta' => str_replace('../', '', $parts[0]),
+                        'id' => $parts[1]
+                    ];
+                }
+            }
+        }
         $products[] = $row;
     }
     mysqli_close($link);

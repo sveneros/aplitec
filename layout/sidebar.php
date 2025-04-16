@@ -1,7 +1,7 @@
 <?php include("../controllers/conx.php"); include("../controllers/funciones.php");?>
 
 <!-- Menu Navigation starts -->
-<nav>
+<nav class="dark-sidebar semi-nav">
     <div class="app-logo">
         <a class="logo d-inline-block" href="index.php">
             <img src="../assets/images/logo/1.png" alt="#">
