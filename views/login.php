@@ -7,6 +7,8 @@
     include('../layout/head.php');
     include('../layout/css.php');
     ?>
+    <!-- reCAPTCHA API -->
+    <!-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> -->
 </head>
 
 <body>
@@ -17,7 +19,6 @@
             <!-- Login to your Account start -->
             <div class="container-fluid">
                 <div class="row">
-
                     <div class="col-12 p-0">
                         <div class="login-form-container">
                             <div class="mb-4">
@@ -26,7 +27,6 @@
                                 </a>
                             </div>
                             <div class="form_container">
-
                                 <form class="app-form" id="sml2020_login_form">
                                     <div class="mb-3 text-center">
                                         <h3>Login</h3>
@@ -34,12 +34,11 @@
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Usuario</label>
-                                        <input class="form-control" id="sml2020_username" name="sml2020_username" type="text" required="" placeholder="Ingrese su usuario" autofocus>
-                                        
+                                        <input class="form-control" id="sml2020_username" name="sml2020_username" type="text" required placeholder="Ingrese su usuario" autofocus>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Password</label>
-                                        <input class="form-control" id="sml2020_password" name="sml2020_password" type="password" required="" autocomplete="on" placeholder="Ingrese su contraseña">                                    
+                                        <input class="form-control" id="sml2020_password" name="sml2020_password" type="password" required autocomplete="on" placeholder="Ingrese su contraseña">
                                         <div class="error" id="passwordError" style="color: red; display: none;">
                                             La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial.
                                         </div>
@@ -48,21 +47,19 @@
                                         </div>
                                     </div>
                                    
-                                   
-
                                     <div class="mb-3 form-check">
-                                        
-                                        <input type="checkbox" onclick="myFunction()"> Mostrar Password 
-                                        
+                                        <input type="checkbox" onclick="togglePassword()"> Mostrar Password
                                     </div>
+                                    
+                                    <!-- reCAPTCHA -->
+                                    <!-- <div class="mb-3 g-recaptcha" data-sitekey="TU_SITE_KEY_AQUI"></div> -->
+                                    
                                     <div>
-                                        
-                                        <button class="btn btn-primary w-100" type="submit">Ingresar</button>
+                                        <button class="btn btn-primary w-100" type="submit" id="loginButton">Ingresar</button>
                                     </div>
                                     <div class="app-divider-v justify-content-center">
                                         <div id="msgbox"></div>
                                     </div>
-                                    
                                 </form>
                             </div>
                         </div>
@@ -75,15 +72,8 @@
     </div>
 </div>
 
-
-</body>
-
 <!-- Javascript -->
-
-<!-- latest jquery-->
 <script src="../assets/js/jquery-3.6.3.min.js"></script>
-
-<!-- Bootstrap js-->
 <script src="../assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 
 <script type="text/javascript">
@@ -98,16 +88,12 @@
     }
 
     // Función para mostrar/ocultar contraseña
-    function myFunction() {
-        var x = document.getElementById("sml2020_password");
-        if (x.type === "password") {
-            x.type = "text";
-        } else {
-            x.type = "password";
-        }
+    function togglePassword() {
+        const passwordField = document.getElementById("sml2020_password");
+        passwordField.type = passwordField.type === "password" ? "text" : "password";
     }
 
-    $(function($) {
+    $(document).ready(function() {
         // Validación de la contraseña en tiempo real
         $('#sml2020_password').on('input', function() {
             const password = $(this).val();
@@ -116,53 +102,73 @@
             if (isValid) {
                 $('#passwordError').hide();
                 $('#passwordSuccess').show();
-                $(this).removeClass('invalid').addClass('valid');
+                $(this).removeClass('is-invalid').addClass('is-valid');
             } else {
                 $('#passwordError').show();
                 $('#passwordSuccess').hide();
-                $(this).removeClass('valid').addClass('invalid');
+                $(this).removeClass('is-valid').addClass('is-invalid');
             }
         });
 
         // Enviar formulario de inicio de sesión
         $("#sml2020_login_form").submit(function(e) {
             e.preventDefault();
+            
+            // Validar CAPTCHA
+           /*  const captchaResponse = grecaptcha.getResponse();
+            if (!captchaResponse) {
+                $("#msgbox").removeClass().addClass('alert alert-danger').text('Por favor complete el CAPTCHA').fadeIn(1000);
+                return false;
+            } */
 
             const password = $('#sml2020_password').val();
             if (!validatePassword(password)) {
-                alert('Por favor, corrige los errores en el formulario.');
+                $("#msgbox").removeClass().addClass('alert alert-danger').text('Por favor, corrija los errores en el formulario.').fadeIn(1000);
                 return false;
             }
 
-            $("#msgbox").removeClass().addClass('alert alert-info').text('Verificando....').fadeIn(1000);
-            $.post("../controllers/ajax_login.php", {
-                username: $('#sml2020_username').val(),
-                password: $('#sml2020_password').val(),
-                rand: Math.random()
-            }, function(data) {
-                if (data == 'yes') {
-                    $("#msgbox").fadeTo(200, 0.1, function() {
-                        $(this).removeClass().html('Ingresando...').addClass('alert btn-success').fadeTo(900, 1, function() {
-                            document.location = 'profile.php';
-                        });
-                    });
-                } else {
-                    if (data == 'wp') {
+            // Deshabilitar botón para evitar múltiples envíos
+            $('#loginButton').prop('disabled', true);
+            
+            $("#msgbox").removeClass().addClass('alert alert-info').text('Verificando...').fadeIn(1000);
+            
+            $.ajax({
+                url: "../controllers/login_controller.php",
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    username: $('#sml2020_username').val(),
+                    password: password,
+                    //captcha: captchaResponse
+                }),
+                success: function(data) {
+                    if (data.status === 'success') {
                         $("#msgbox").fadeTo(200, 0.1, function() {
-                            $(this).removeClass().html('Password incorrecto...').addClass('alert btn-warning').fadeTo(900, 1);
+                            $(this).removeClass().html('Ingresando...').addClass('alert alert-success').fadeTo(900, 1, function() {
+                                window.location.href = 'profile.php';
+                            });
                         });
                     } else {
                         $("#msgbox").fadeTo(200, 0.1, function() {
-                            $(this).removeClass().html('Usuario NO registrado...').addClass('alert btn-danger').fadeTo(900, 1);
+                            $(this).removeClass().html(data.message).addClass('alert alert-danger').fadeTo(900, 1);
                         });
+                        $('#loginButton').prop('disabled', false);
+                        //grecaptcha.reset();
                     }
+                },
+                error: function() {
+                    $("#msgbox").fadeTo(200, 0.1, function() {
+                        $(this).removeClass().html('Error en la conexión').addClass('alert alert-danger').fadeTo(900, 1);
+                    });
+                    $('#loginButton').prop('disabled', false);
+                    //grecaptcha.reset();
                 }
             });
-            return false;
         });
 
         $('#sml2020_username').focus();
     });
 </script>
-
+</body>
 </html>
