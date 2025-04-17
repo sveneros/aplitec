@@ -1,340 +1,353 @@
 <link rel="stylesheet" type="text/css" href="../assets/vendor/datatable/jquery.dataTables.min.css">
+<!-- Galería de imágenes -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lightgallery.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lg-zoom.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lg-fullscreen.min.css" />
 
-        <?php
-        include('../layout/header.php');
-        ?>
+<?php
+include('../layout/header.php');
+?>
 
-       
 <div class="container-fluid">
+    <!-- Modal para finalizar cotización -->
     <div id="ModalFinVenta" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-primary text-white">
                     <h4 class="modal-title">Finalizar Cotización</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-hidden="true">×</button>
                 </div>
                 <form id="FormFinVenta">
                     <div class="modal-body">
-                        <div class="col-lg-6 col-md-6">
-                            <div id="textoVenta">...
+                        <div class="alert alert-info">
+                            <i class="ti ti-info-circle"></i> Revise los detalles antes de finalizar la cotización
+                        </div>
+                        <div id="textoVenta" class="text-center py-3">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
                             </div>
                         </div>
                     </div>
-
-            
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-info waves-effect" id="btn_finalizar_venta">Registrar
-                            Cotizacion</button>
-                        <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" id="btn_finalizar_venta">
+                            <i class="ti ti-file-invoice"></i> Registrar Cotización
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancelar</button>
                     </div>
                 </form>
             </div>
-        <!-- /.modal-content -->
         </div>
-    <!-- /.modal-dialog -->
     </div>
 
-    <div class="modal fade bd-example-modal-lg" id="add-carrito" tabindex="-1" role="dialog"
-        aria-labelledby="editCardModalLabel" aria-hidden="true">
+    <!-- Modal para agregar producto -->
+    <div class="modal fade" id="add-carrito" tabindex="-1" role="dialog" aria-labelledby="editCardModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
-
-                <div class="modal-header">
-                    <h4 class="modal-title">Producto para Cotización</h4>
-                    <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header bg-primary text-white">
+                    <h4 class="modal-title">Agregar Producto</h4>
+                    <button class="btn-close btn-close-white" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="FormAgregarCarrito">
-
-                        <div class="form-group">
-                            <input type="hidden" id="carrito_id_producto" />
-                            <h5 for="carrito_modelo">Producto:</h5>
-                            <input type="text" class="form-control" id="carrito_descripcion" name="carrito_descripcion"
-                                placeholder="Medida" readonly>
-                        </div>
-
-                        <div class="form-group">
-                            <h5 for="carrito_precio">Precio:</h5>
-                            <input type="text" class="form-control" id="carrito_precio" placeholder="0.00"
-                                maxlength="12" required>
-                        </div>
-                        <div class="form-group">
-
-                            <h5 for="carrito_cantidad">Cantidad:</h5>
-
-                            <div class="d-flex">
-                                <a class="btn btn-primary b-r-0 decrement">-</a>
-                                <input type="number" class="form-control app-touchspin count" id="carrito_cantidad"
-                                    name="carrito_cantidad" min="1" max="999999" step="1" maxlength="9" required>
-                                <a class="btn btn-secondary b-r-0 increment">+</a>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Producto:</label>
+                                    <input type="text" class="form-control" id="carrito_descripcion" readonly>
+                                    <input type="hidden" id="carrito_id_producto">
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Precio Unitario (Bs.):</label>
+                                    <input type="text" class="form-control" id="carrito_precio" placeholder="0.00" required>
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Cantidad:</label>
+                                    <div class="input-group">
+                                        <button class="btn btn-outline-secondary decrement" type="button">-</button>
+                                        <input type="number" class="form-control text-center" id="carrito_cantidad" min="1" value="1" required>
+                                        <button class="btn btn-outline-secondary increment" type="button">+</button>
+                                    </div>
+                                </div>
                             </div>
-
+                            <div class="col-md-6">
+                                <div class="product-image-preview border p-3 text-center">
+                                    <img id="productImagePreview" src="../assets/images/no-image.jpg" class="img-fluid rounded" style="max-height: 200px;">
+                                    <div class="mt-2">
+                                        <small class="text-muted" id="productCodePreview">Código: -</small>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-info waves-effect" id="btn_submit">Agregar producto <i class="ti ti-shopping-cart"></i><i class="ti ti-arrow-right"></i></button>
-                    <button type="button" class="btn btn-secondary waves-effect"
-                        data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-shopping-cart-plus"></i> Agregar al carrito
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
                 </div>
-
                 </form>
             </div>
-            <!-- /.modal-content -->
         </div>
-        <!-- /.modal-dialog -->
     </div>
 
-    <div class="modal fade bd-example-modal-lg" id="add-cliente" tabindex="-1" role="dialog"
-        aria-labelledby="editCardModalLabel" aria-hidden="true">
+    <!-- Modal para seleccionar cliente -->
+    <div class="modal fade" id="add-cliente" tabindex="-1" role="dialog" aria-labelledby="editCardModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
-
-                <div class="modal-header">
-                    <h4 class="modal-title">Cliente para Cotización</h4>
-                    <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header bg-primary text-white">
+                    <h4 class="modal-title">Seleccionar Cliente</h4>
+                    <button class="btn-close btn-close-white" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="FormAgregarCliente">
-                        <div class="form-group">
-                            <input type="hidden" id="carrito_id_cliente" required/>
-                            <h5 for="carrito_modelo">Cliente:</h5>
-                            <input type="text" class="form-control" id="carrito_cliente_descripcion" name="carrito_cliente_descripcion"
-                                placeholder="Medida" readonly required>
-                            <label>Teléfono</label>
-                            <input type="text" class="form-control" id="carrito_cel1" name="carrito_cel1" readonly >
-                            <label>Celular</label>
-                            <input type="text" class="form-control" id="carrito_cel2" name="carrito_cel2" readonly >
-                            <label>Email</label>
-                            <input type="text" class="form-control" id="carrito_email" name="carrito_email" readonly >
+                        
+                        
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Nombre Completo:</label>
+                                    <input type="text" class="form-control" id="carrito_cliente_descripcion" readonly>
+                                    <input type="hidden" id="carrito_id_cliente">
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Teléfono:</label>
+                                    <input type="text" class="form-control" id="carrito_cel1">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Celular:</label>
+                                    <input type="text" class="form-control" id="carrito_cel2">
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-bold">Email:</label>
+                                    <input type="email" class="form-control" id="carrito_email">
+                                </div>
+                            </div>
                         </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-info waves-effect" id="btn_submit">Seleccionar cliente <i class="ti ti-user"></i><i class="ti ti-arrow-right"></i></button>
-                    <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-user-check"></i> Seleccionar Cliente
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
                 </div>
-
                 </form>
             </div>
-            <!-- /.modal-content -->
         </div>
-        <!-- /.modal-dialog -->
     </div>
-    <!-- Breadcrumb start -->
-    <div class="row m-1">
-        <div class="col-12 ">
-            <h4 class="main-title">Cotización</h4>
-            <ul class="app-line-breadcrumbs mb-3">
-                <li class="">
-                    <a href="#" class="f-s-14 f-w-500">
-                        <span>
-                            <i class="ph-duotone  ph-stack f-s-16"></i> Operaciones
-                        </span>
-                    </a>
-                </li>
 
-                <li class="active">
-                    <a href="#" class="f-s-14 f-w-500">Cotización</a>
-                </li>
-            </ul>
+    <!-- Breadcrumb -->
+    <div class="row m-1">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="main-title">Cotización</h4>
+                    <ul class="app-line-breadcrumbs mb-3">
+                        <li>
+                            <a href="#" class="f-s-14 f-w-500">
+                                <i class="ph-duotone ph-stack f-s-16"></i> Operaciones
+                            </a>
+                        </li>
+                        <li class="active">
+                            <a href="#" class="f-s-14 f-w-500">Cotización</a>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <button class="btn btn-primary" id="btnNuevaCotizacion">
+                        <i class="ti ti-plus"></i> Nueva Cotización
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-    <!-- Breadcrumb end -->
 
     <div class="row">
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-body">
-                    <div class="checkout-tabs-step">
-                        <div class="tab checkout-current-step d-flex" data-tab="tab-1">
-
-                            <div class="tabs-steps">
-                                <i class="ti ti-user-circle"></i>
-                            </div>
-
-                            <div class="px-2">
-                                <h6 class="mb-0">Datos del cliente</h6>
-                                <span class="text-secondary">Paso 1 </span>
-                            </div>
-
-                        </div>
-                        <div class="tab d-flex" data-tab="tab-2">
-                            <div class="tabs-steps">
-                                <i class="ti ti-shopping-cart"></i>
-                            </div>
-
-                            <div class="px-2">
-                                <h6 class="mb-0"> Productos </h6>
-                                <span class="text-secondary">Paso 2</span>
-                            </div>
-
-                        </div>
-                        
-
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-body">
-                    <div class="checkout-content-list">
-                        <div id="tab-1" class="tabs-contents checkout-current-step">
-                            <div class="table-responsive app-scroll app-datatable-default product-list-table">
-                                <table class="table-sm display align-middle" id="basic-2">
-                                    <thead>
+                    <ul class="nav nav-pills nav-justified mb-3" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="pill" href="#tab-cliente" role="tab">
+                                <i class="ti ti-user-circle me-1"></i> Datos del Cliente
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="pill" href="#tab-productos" role="tab">
+                                <i class="ti ti-shopping-cart me-1"></i> Productos
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="tab-cliente" role="tabpanel">
+                           
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="basic-2">
+                                    <thead class="table-light">
                                         <tr>
                                             <th>Nombre</th>
-                                            <th>Apellido Paterno</th>
-                                            <th>Apellido Materno</th>
-                                            <th>Celular</th>
-                                            <th>Email</th>
-                                            <th>Seleccionar</th>
+                                            <th>Apellidos</th>
+                                            <th>Contacto</th>
+                                            <th>Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody id="DetalleTablaClientes">
                                         <tr>
-                                            <td>CARGANDO...</td>
+                                            <td colspan="4" class="text-center">Cargando clientes...</td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
-
                         </div>
-
-                        <div id="tab-2" class="tabs-contents">
-                            <div class="row">
-
-                                <div class="app-scroll table-responsive app-datatable-default">
-                                    <table class="display app-data-table default-data-table" id="basic-1">
-                                        <thead>
-                                            <tr>
-
-                                                <th>Código</th>
-                                               
-                                                <th>Descripción</th>
-                                                <th>Marca</th>
-                                               
-                                                <th>Precio BS.</th>
-                                                <th>Seleccionar</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="DetalleTabla">
-                                            <tr>
-                                                <td>CARGANDO...</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
+                        
+                        <div class="tab-pane fade" id="tab-productos" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="card-title">Lista de productos disponibles</h5>
+                               
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="basic-1">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Imagen</th>
+                                            <th>Código</th>
+                                            <th>Descripción</th>
+                                            <th>Precio</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="DetalleTabla">
+                                        <tr>
+                                            <td colspan="5" class="text-center">Cargando productos...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                       
-
                     </div>
                 </div>
             </div>
         </div>
+        
         <div class="col-lg-4">
-
-            <div class="card education-profile-card">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="ti ti-user me-1"></i> Información del Cliente</h5>
+                </div>
                 <div class="card-body">
-                    <div class="profile-header">
-                        <h5 class="header-title-text"><i class="ti ti-user-circle"></i> Cliente:</h5>
-                    </div>
-                    <div class="profile-top-content">
-                        
-                        <h6 class="text-dark f-w-600 mb-0" id="fin_nombre_cliente"></h6>
-                        <p class="text-secondary f-s-13 mb-0" id="fin_email"></p>
-                        
-                    </div>
-                    <div class="profile-content-box">
-                            
-                            <div class="profile-details">
-                                <p class="f-s-18 mb-0"><i class="ph-fill  ph-phone"></i></p>
-                                <span class="badge text-light-secondary" id="fin_cel1"></span>
-                            </div>
-                            <div class="profile-details">
-                                <p class="f-s-18 mb-0"><i class="ph-duotone  ph-phone"></i></p>
-                                <span class="badge text-light-success" id="fin_cel2"></span>
-                            </div>
-                            
+                    <div class="text-center mb-3">
+                        <div class="avatar avatar-xl bg-light-primary rounded-circle mb-2">
+                            <i class="ti ti-user f-s-24"></i>
+                        </div>
+                        <h5 class="mb-1" id="fin_nombre_cliente">No seleccionado</h5>
+                        <p class="text-muted mb-1" id="fin_email">-</p>
+                        <div class="d-flex justify-content-center gap-2 mt-2">
+                            <span class="badge bg-light-secondary" id="fin_cel1">-</span>
+                            <span class="badge bg-light-success" id="fin_cel2">-</span>
                         </div>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-header">
-                        <div class="d-flex align-items-center gap-2">
-                            <img src="../assets/images/ecommerce/01.gif" alt="" class="w-35 h-35">
-                            <h6 class="text-dark f-w-600 f-s-18 m-0">Productos seleccionados:</h6>
-                        </div>
-
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table" id="carritoList">
-
-                            </table>
-                        </div>
-                        <div class="pricing-details">
-
-                            <table class="table mb-0">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Sub total:</th>
-                                        <th scope="col" class="text-end">
-                                            <h3 class="tx-primary tx-bold" id="total_venta">0.00</h3>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                
-                                    <tr>
-                                        <td colspan="2">
-                                            <form id="FormFinalizarCotizacion">
-                                                <input type="hidden" id="fin_id_cliente" name="fin_id_cliente" required readonly>
-                                                <label>Fecha de la cotización:</label>
-                                                <div class="dates">
-                                                    
-                                                    <input class="form-control basic-date flatpickr-input active" type="text" placeholder="Seleccione una fecha" readonly="readonly" id="fin_fecha" name="fin_fecha" required >
-                                                    
-                                                </div>
-                                                <div class="price-row" id="boton_fin_venta">
-                                                </div>
-                                            </form>
-                                        </td>
-
-                                    </tr>
-
-                                </tbody>
-
-                            </table>
-
-                        </div>
-
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex align-items-center">
+                        <i class="ti ti-shopping-cart me-2"></i>
+                        <h5 class="mb-0">Productos seleccionados</h5>
                     </div>
                 </div>
+                <div class="card-body">
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-hover" id="carritoList">
+                            <thead class="sticky-top bg-light">
+                                <tr>
+                                    <th width="10%">Cant.</th>
+                                    <th width="50%">Producto</th>
+                                    <th width="20%">Total</th>
+                                    <th width="20%"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">No hay productos agregados</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="border-top mt-3 pt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0">Subtotal:</h6>
+                            <h5 class="mb-0 text-primary" id="total_venta">0.00 Bs.</h5>
+                        </div>
+                        
+                        <form id="FormFinalizarCotizacion" class="mt-3">
+                            <input type="hidden" id="fin_id_cliente" required>
+                            
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">Fecha de cotización:</label>
+                                <input class="form-control basic-date" type="text" placeholder="Seleccione fecha" id="fin_fecha" required>
+                            </div>
+                            
+                            <div class="d-grid gap-2" id="boton_fin_venta">
+                                <button type="button" class="btn btn-primary" disabled>
+                                    <i class="ti ti-user-off me-1"></i> Seleccione un cliente primero
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-   
-    <?php
-    include('../layout/footer.php');
-    ?>
 
-<!-- checkout js -->
-<script src="../assets/js/checkout.js"></script>
+<?php
+include('../layout/footer.php');
+?>
+
+<!-- Scripts -->
 <script src="../assets/vendor/datatable/jquery.dataTables.min.js"></script>
-
 <script src="../assets/js/jquery.validate.min.js"></script>
 
+<!-- Galería de imágenes -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/lightgallery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/zoom/lg-zoom.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/fullscreen/lg-fullscreen.min.js"></script>
+
 <script>
-var elCodigoProducto;var ventas=[];
-config = {
-    enableTime: false,
-}
-flatpickr(".basic-date",config);
-$(function($){
+var elCodigoProducto;
+var ventas = [];
+var currentCliente = null;
+
+$(document).ready(function() {
+    // Inicializar datepicker
+    flatpickr(".basic-date", {
+        enableTime: false,
+        dateFormat: "Y-m-d",
+        defaultDate: new Date()
+    });
+    
+    
+    
+    
+    // Botón para nueva cotización
+    $('#btnNuevaCotizacion').click(function() {
+        resetCotizacion();
+    });
+    
+    // Cargar datos iniciales
     ObtenerProductosIngreso();
     ObtenerClientesIngreso();
-
+    
+    // Validación de precio
     $('#carrito_precio').on('blur', function() {
         let value = $(this).val();
         if (value) {
@@ -359,160 +372,274 @@ $(function($){
             // Convertir a número y formatear a dos decimales
             value = parseFloat(value).toFixed(2);
             $(this).val(value);
+            
+            // Calcular total si hay cantidad
+            if ($('#carrito_cantidad').val() > 0) {
+                calcularTotalProducto();
+            }
         }
+    });
+    
+    // Incrementar/decrementar cantidad
+    $('.increment').click(function() {
+        var input = $('#carrito_cantidad');
+        var value = parseInt(input.val()) || 0;
+        input.val(value + 1);
+        calcularTotalProducto();
+    });
+    
+    $('.decrement').click(function() {
+        var input = $('#carrito_cantidad');
+        var value = parseInt(input.val()) || 0;
+        if (value > 1) {
+            input.val(value - 1);
+            calcularTotalProducto();
+        }
+    });
+    
+    $('#carrito_cantidad').on('change', function() {
+        calcularTotalProducto();
     });
 });
 
+function calcularTotalProducto() {
+    var cantidad = parseInt($('#carrito_cantidad').val()) || 0;
+    var precio = parseFloat($('#carrito_precio').val()) || 0;
+    var total = cantidad * precio;
+    $('#productTotalPreview').text('Total: ' + total.toFixed(2) + ' Bs.');
+}
+
+function resetCotizacion() {
+    ventas = [];
+    currentCliente = null;
+    $('#fin_id_cliente').val('');
+    $('#fin_nombre_cliente').text('No seleccionado');
+    $('#fin_email').text('-');
+    $('#fin_cel1').text('-');
+    $('#fin_cel2').text('-');
+    $('#carritoList tbody').html('<tr><td colspan="4" class="text-center py-4">No hay productos agregados</td></tr>');
+    $('#total_venta').text('0.00 Bs.');
+    $('#boton_fin_venta').html('<button type="button" class="btn btn-primary" disabled><i class="ti ti-user-off me-1"></i> Seleccione un cliente primero</button>');
+    $('.nav-pills a[href="#tab-cliente"]').tab('show');
+}
 
 function ObtenerProductosIngreso() {
     $.ajax({
-      url: '../controllers/product_controller.php',
-      type: 'GET',
-      dataType: "json",
-      data: {  },
-      success: function (data) {
-        
-        localStorage.setItem('sml2020_productos', JSON.stringify(data)); // Store all categories in localStorage
-
-        actualizarTabla();
-      },
-      error: function (jqXHR, textStatus, errorThrown) {
-        if (textStatus === 'timeout') {
-          Swal.fire('Error', '¡La conexión a internet se ha interrumpido!', 'error');
-        } else {
-          Swal.fire('Error', 'Error al cargar productos de ingreso: ' + errorThrown, 'error');
+        url: '../controllers/product_controller.php',
+        type: 'GET',
+        dataType: "json",
+        data: { },
+        success: function(data) {
+            localStorage.setItem('sml2020_productos', JSON.stringify(data));
+            actualizarTabla();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            if (textStatus === 'timeout') {
+                Swal.fire('Error', '¡La conexión a internet se ha interrumpido!', 'error');
+            } else {
+                Swal.fire('Error', 'Error al cargar productos: ' + errorThrown, 'error');
+            }
         }
-      }
     });
-  }
+}
 
-  function actualizarTabla() {
+function actualizarTabla() {
     $('#DetalleTabla').empty();
 
     if ($.fn.dataTable.isDataTable('#basic-1')) {
         $('#basic-1').DataTable().destroy();
     }
-    var localData=JSON.parse(localStorage.getItem('sml2020_productos'));
-    cant_prod=localData.length;
-
+    
+    var localData = JSON.parse(localStorage.getItem('sml2020_productos'));
     let html = '';
-  $.each(localData, function(key, value) {
-    const est = value.estado === 'V' ?
-      '<span class="badge rounded-pill bg-success badge-notification">HABILITADO</span>' :
-      '<span class="badge rounded-pill bg-danger badge-notification">DESHABILITADO</span>';
-    const edi = '<button class="btn btn-info" onclick="Editar(\'' + value.id + '\')"><i class="fa fa-shopping-cart"></i><i class="ti ti-arrow-right"></button>';
-    html += `
-      <tr role="row" class="odd">
-        <td class="sorting_1">${value.producto_codigo}</td>
+    
+    $.each(localData, function(key, value) {
+        const edi = `<button class="btn btn-sm btn-primary" onclick="Editar('${value.id}')" data-bs-toggle="modal" data-bs-target="#add-carrito">
+                        <i class="ti ti-shopping-cart-plus"></i> Agregar
+                    </button>`;
         
-        <td><b>${value.nombre}</b><br>${value.producto_descripcion}</td>
-        <td>${value.marca}</td>
+        // Celda de imagen
+        const imageCell = `<td class="product-image-td" data-product-id="${value.id}">
+                              <div class="spinner-border spinner-border-sm text-primary"></div>
+                          </td>`;
         
-        <td> ${value.puntos}</td>
-        <td>${edi}</td>
-      </tr>
+        html += `
+            <tr>
+                ${imageCell}
+                <td>${value.producto_codigo}</td>
+                <td><b>${value.producto_nombre}</b><br><small class="text-muted">${value.producto_descripcion}</small></td>
+                <td>${parseFloat(value.puntos).toFixed(2)} Bs.</td>
+                <td>${edi}</td>
+            </tr>
         `;
     });
 
     $('#DetalleTabla').html(html);
-    $('#basic-1').DataTable();    
-  }
-
-  function ObtenerClientesIngreso() {
-    $.ajax({
-      url: '../controllers/client_controller.php',
-      type: 'GET',
-      dataType: "json",
-      data: {  },
-      success: function (data) {
-        
-        localStorage.setItem('sml2020_clientes', JSON.stringify(data)); // Store all categories in localStorage
-
-        actualizarTablaClientes();
-      },
-      error: function (jqXHR, textStatus, errorThrown) {
-        if (textStatus === 'timeout') {
-          Swal.fire('Error', '¡La conexión a internet se ha interrumpido!', 'error');
-        } else {
-          Swal.fire('Error', 'Error al cargar clientes de ingreso: ' + errorThrown, 'error');
+    
+    // Inicializar DataTable con búsqueda
+    $('#basic-1').DataTable({
+        dom: '<"top"f>rt<"bottom"lip><"clear">',
+        language: {
+            search: "Buscar:",
+            lengthMenu: "Mostrar _MENU_ registros por página",
+            zeroRecords: "No se encontraron productos",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ productos",
+            infoEmpty: "No hay productos disponibles",
+            infoFiltered: "(filtrado de _MAX_ productos totales)"
         }
-      }
     });
-  }
+    
+    // Cargar imágenes para cada producto
+    $('.product-image-td').each(function() {
+        const productId = $(this).data('product-id');
+        loadProductImageForQuotation(productId, $(this));
+    });
+}
 
-  function actualizarTablaClientes() {
+// Cargar imagen del producto para cotización
+function loadProductImageForQuotation(productId, cellElement) {
+    $.ajax({
+        url: '../controllers/image_controller.php?entidad_tipo=producto&entidad_id=' + productId,
+        type: 'GET',
+        dataType: 'json',
+        success: function(images) {
+            let html = '';
+            if (images.length > 0) {
+                html = `<img src="../${images[0].ruta}" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">`;
+            } else {
+                html = `<div class="no-image-placeholder bg-light rounded" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                          <i class="ti ti-photo text-muted"></i>
+                       </div>`;
+            }
+            cellElement.html(html);
+        },
+        error: function() {
+            cellElement.html('<div class="text-danger">Error</div>');
+        }
+    });
+}
+
+function ObtenerClientesIngreso() {
+    $.ajax({
+        url: '../controllers/client_controller.php',
+        type: 'GET',
+        dataType: "json",
+        data: { },
+        success: function(data) {
+            localStorage.setItem('sml2020_clientes', JSON.stringify(data));
+            actualizarTablaClientes();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            if (textStatus === 'timeout') {
+                Swal.fire('Error', '¡La conexión a internet se ha interrumpido!', 'error');
+            } else {
+                Swal.fire('Error', 'Error al cargar clientes: ' + errorThrown, 'error');
+            }
+        }
+    });
+}
+
+function actualizarTablaClientes() {
     $('#DetalleTablaClientes').empty();
 
     if ($.fn.dataTable.isDataTable('#basic-2')) {
         $('#basic-2').DataTable().destroy();
     }
-    var localData=JSON.parse(localStorage.getItem('sml2020_clientes'));
-    cant_prod=localData.length;
-
-    let html = '';
-  $.each(localData, function(key, value) {
     
-    const edi = '<button class="btn btn-info" onclick="SeleccionarCliente(\'' + value.id + '\')" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="ti ti-user-circle"></i><i class="ti ti-arrow-right"></i></button>';
-
-    html += `
-      <tr role="row" class="odd">
+    var localData = JSON.parse(localStorage.getItem('sml2020_clientes'));
+    let html = '';
+    
+    $.each(localData, function(key, value) {
+        const edi = `<button class="btn btn-sm btn-primary" onclick="SeleccionarCliente('${value.id}')">
+                        <i class="ti ti-user-check"></i> Seleccionar
+                    </button>`;
         
-        <td class="sorting_1">${value.nombre}</td>
-        <td>${value.apellido1}</td>
-        <td>${value.apellido2}</td>
-        <td> ${value.cel2}</td>
-        <td> ${value.email}</td>
-        <td>${edi}</td>
-      </tr>
+        html += `
+            <tr>
+                <td>${value.nombre}</td>
+                <td>${value.apellido1} ${value.apellido2}</td>
+                <td><small>${value.cel2 || '-'}<br>${value.email || '-'}</small></td>
+                <td>${edi}</td>
+            </tr>
         `;
     });
 
     $('#DetalleTablaClientes').html(html);
-    $('#basic-2').DataTable();    
-  }
+    $('#basic-2').DataTable({
+        dom: '<"top"f>rt<"bottom"lip><"clear">',
+        language: {
+            search: "Buscar:",
+            lengthMenu: "Mostrar _MENU_ registros por página",
+            zeroRecords: "No se encontraron clientes",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ clientes",
+            infoEmpty: "No hay clientes disponibles",
+            infoFiltered: "(filtrado de _MAX_ clientes totales)"
+        }
+    });
+}
 
-function SeleccionarCliente(elId){ 
-    var localData=JSON.parse(localStorage.getItem('sml2020_clientes'));
-       $.each(localData,function(key,value){
-        if (value.id===elId) { 
+function SeleccionarCliente(elId) { 
+    var localData = JSON.parse(localStorage.getItem('sml2020_clientes'));
+    $.each(localData, function(key, value) {
+        if (value.id === elId) { 
             $('#carrito_id_cliente').val(value.id);
-            $('#carrito_cliente_descripcion').val(value.nombre +" "+value.apellido1+" "+value.apellido2);
+            $('#carrito_cliente_descripcion').val(value.nombre + " " + value.apellido1 + " " + value.apellido2);
             $('#carrito_cel1').val(value.cel1);
             $('#carrito_cel2').val(value.cel2);
             $('#carrito_email').val(value.email);
-            return
+            
+            // Mostrar modal para confirmar o editar datos
+            $('#add-cliente').modal("show");
+            return;
         }
-      });          
-    $('#add-cliente').modal("show");
-    $('#add-cliente carrito_cliente_descripcion').focus();
-            
+    });          
 }
-function Editar(elId){ 
-    var validator = $( "#FormAgregarCarrito" ).validate();
-    validator.resetForm();
-    var localData=JSON.parse(localStorage.getItem('sml2020_productos'));
 
-       $.each(localData,function(key,value){
-        if (value.id===elId) { 
-        $('#carrito_id_producto').val(value.id);
-        $('#carrito_descripcion').val(value.producto_nombre);
-        precio=parseFloat(value.puntos);
-        $('#carrito_precio').val(precio.toFixed(2));
-        //$('#carrito_cantidad').prop('max', value.existencias); 
-        $('#carrito_cantidad').val("1");
-        return}
-      }); 
-           
-    $('#add-carrito').modal("show");
+function Editar(elId) { 
+    var validator = $("#FormAgregarCarrito").validate();
+    validator.resetForm();
+    var localData = JSON.parse(localStorage.getItem('sml2020_productos'));
+
+    $.each(localData, function(key, value) {
+        if (value.id === elId) { 
+            $('#carrito_id_producto').val(value.id);
+            $('#carrito_descripcion').val(value.producto_nombre);
+            precio = parseFloat(value.puntos);
+            $('#carrito_precio').val(precio.toFixed(2));
+            $('#carrito_cantidad').val("1");
             
+            // Cargar imagen del producto
+            loadProductImageForModal(value.id, value.producto_codigo);
+            return;
+        }
+    }); 
+    
+    $('#add-carrito').modal("show");
+}
+
+// Cargar imagen para el modal de producto
+function loadProductImageForModal(productId, productCode) {
+    $.ajax({
+        url: '../controllers/image_controller.php?entidad_tipo=producto&entidad_id=' + productId,
+        type: 'GET',
+        dataType: 'json',
+        success: function(images) {
+            if (images.length > 0) {
+                $('#productImagePreview').attr('src', '../' + images[0].ruta);
+            } else {
+                $('#productImagePreview').attr('src', '../assets/images/no-image.jpg');
+            }
+            $('#productCodePreview').text('Código: ' + productCode);
+        }
+    });
 }
 
 $("#FormAgregarCarrito").submit(function(e) {
     e.preventDefault();
 }).validate({  
     submitHandler: function(form) { 
-      GuardarEnCarrito(); //submit via ajax
-        return false;  //This doesn't prevent the form from submitting.
+        GuardarEnCarrito();
+        return false;
     }
 });
 
@@ -522,80 +649,115 @@ $("#FormAgregarCliente").submit(function(e) {
     submitHandler: function(form) { 
         GuardarClienteEnCarrito(); 
         $('#add-cliente').modal('hide');
-        return false;  //This doesn't prevent the form from submitting.
+        return false;
     }
 });
 
-//agregar cliente seleccionado
-function GuardarClienteEnCarrito(){
-    var Id=$('#carrito_id_cliente').val();
-    var descripcion=$('#carrito_cliente_descripcion').val();
-    var cel1=$('#carrito_cel1').val();
-    var cel2=$('#carrito_cel2').val();
-    var email=$('#carrito_email').val();
+function GuardarClienteEnCarrito() {
+    var Id = $('#carrito_id_cliente').val();
+    var descripcion = $('#carrito_cliente_descripcion').val();
+    var cel1 = $('#carrito_cel1').val();
+    var cel2 = $('#carrito_cel2').val();
+    var email = $('#carrito_email').val();
+    
     $('#fin_id_cliente').val(Id);
     $('#fin_nombre_cliente').text(descripcion);
-    $('#fin_cel1').text(cel1);
-    $('#fin_cel2').text(cel2);
-    $('#fin_email').text(email);
+    $('#fin_cel1').text(cel1 || '-');
+    $('#fin_cel2').text(cel2 || '-');
+    $('#fin_email').text(email || '-');
+    
+    // Habilitar botón de finalizar
+    $('#boton_fin_venta').html('<button type="button" class="btn btn-success w-100" onclick="MostrarModalFinVenta()">' +
+                               '<i class="ti ti-check me-1"></i> Finalizar Cotización</button>');
+    
+    // Cambiar a pestaña de productos
+    $('.nav-pills a[href="#tab-productos"]').tab('show');
 }
 
-//agregar a carrito:
-function GuardarEnCarrito(){
-    var Id=$('#carrito_id_producto').val();
-    var descripcion=$('#carrito_descripcion').val();
-    var cant=$('#carrito_cantidad').val();
-    var precioU=parseFloat($('#carrito_precio').val());
-    var precioT=parseFloat(precioU)*cant; 
-    var existe=false;
-    var product = [Id, descripcion,cant,precioU,precioT];       
-    ventas.push(product);
+function GuardarEnCarrito() {
+    var Id = $('#carrito_id_producto').val();
+    var descripcion = $('#carrito_descripcion').val();
+    var cant = $('#carrito_cantidad').val();
+    var precioU = parseFloat($('#carrito_precio').val());
+    var precioT = parseFloat(precioU) * cant; 
+    
+    // Verificar si el producto ya está en el carrito
+    var existe = false;
+    $.each(ventas, function(index, prod) {
+        if (prod[0] === Id) {
+            ventas[index][2] = parseInt(ventas[index][2]) + parseInt(cant);
+            ventas[index][4] = parseFloat(ventas[index][3]) * parseInt(ventas[index][2]);
+            existe = true;
+            return false; // Salir del each
+        }
+    });
+    
+    if (!existe) {
+        var product = [Id, descripcion, cant, precioU, precioT];
+        ventas.push(product);
+    }
+    
     UpdateCarrito();
     $('#add-carrito').modal("hide");
 }
 
-function UpdateCarrito(){
-    $('#carritoList').empty();
+function UpdateCarrito() {
+    $('#carritoList tbody').empty();
     $('#total_venta').empty();
-    $('#total_descuento').empty();
-    $('#total_menos_descuento').empty();
-    $('#subtotal').val("");
-    var descuento=parseFloat($('#descuento').val());
-    $('#boton_descuento').empty();
-    $('#boton_fin_venta').empty();
-    var cont=0;var html='<thead><tr><th>Cant.</th><th>Prod.</th><th>P.U.</th><th>P.T.</th><th></th></tr></thead><tbody>';var total=0.00;
-    $.each(ventas , function( index, prod ) {
-        total+=parseFloat(prod[4]);    
-        cont++;
-        preciou=parseFloat(prod[3]);
-        preciot=parseFloat(prod[4]);
-        html+='<tr><td><span class="badge text-bg-dark badge-notification ms-2">'+prod[2]+'</span></td><td><small>'+prod[1]+'</small></td><td><span class="label label-info small">'+preciou.toFixed(2)+'</span></td><td><span class="label label-success small">'+preciot.toFixed(2)+'</span></td><td class="text-nowrap"><a href="#" class="btn btn-outline-danger icon-btn b-r-4 delete-btn" data-toggle="tooltip" data-original-title="Borrar" onclick=\"Borrar(\''+index+'\')\"><i class="ti ti-trash"></i></a></td></tr>';
-    });
-      
-    $('#carritoList').append(html);
-        if (cont>0){
-            $('#total_venta').append("Bs. " + total.toFixed(2));
-            $('#subtotal').val(total.toFixed(2));
-            $('#total_descuento').append("- ");
-            $('#total_descuento').append(descuento.toFixed(2));
-            var total_menos_descuento=total - descuento;
-            $('#total_menos_descuento').append(total_menos_descuento.toFixed(2));
+    
+    var html = '';
+    var total = 0.00;
+    
+    if (ventas.length === 0) {
+        html = '<tr><td colspan="4" class="text-center py-4">No hay productos agregados</td></tr>';
+    } else {
+        $.each(ventas, function(index, prod) {
+            total += parseFloat(prod[4]);
+            preciou = parseFloat(prod[3]).toFixed(2);
+            preciot = parseFloat(prod[4]).toFixed(2);
             
-            $('#boton_fin_venta').append('<br><button class="btn btn-lg btn-info w-100" onclick=\"MostrarModalFinVenta()\"><i class="ti ti-checkout"></i> Finalizar Cotización</button>');       
-        }
-  }
-
-function Borrar(index){
-    ventas.splice(index, 1);
-    UpdateCarrito();
-     
+            html += `
+                <tr>
+                    <td class="text-center">${prod[2]}</td>
+                    <td><small>${prod[1]}</small></td>
+                    <td class="text-end">${preciot} Bs.</td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-outline-danger" onclick="Borrar(${index})">
+                            <i class="ti ti-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+    
+    $('#carritoList tbody').html(html);
+    $('#total_venta').text(total.toFixed(2) + ' Bs.');
 }
 
-function MostrarModalFinVenta(){
+function Borrar(index) {
+    ventas.splice(index, 1);
+    UpdateCarrito();
+}
+
+function MostrarModalFinVenta() {
+    if (ventas.length === 0) {
+        Swal.fire('Advertencia', 'Debe agregar al menos un producto a la cotización', 'warning');
+        return;
+    }
+    
+    if (!$('#fin_id_cliente').val()) {
+        Swal.fire('Advertencia', 'Debe seleccionar un cliente', 'warning');
+        return;
+    }
+    
+    if (!$('#fin_fecha').val()) {
+        Swal.fire('Advertencia', 'Debe seleccionar una fecha', 'warning');
+        return;
+    }
     
     $('#ModalFinVenta').modal("show");
-    $('#btn_finalizar_venta').show();    
-    
+    $('#btn_finalizar_venta').show();
 }
 
 $("#FormFinalizarCotizacion").submit(function(e) {
@@ -607,50 +769,120 @@ $("#FormFinalizarCotizacion").submit(function(e) {
     }
 });
 
-//FormFinVenta
 $("#FormFinVenta").submit(function(e) {
     e.preventDefault();
 }).validate({  
     submitHandler: function(form) { 
-       FinalizarCotizacion();
-        return false;  //This doesn't prevent the form from submitting.
+        FinalizarCotizacion();
+        return false;
     }
 });
 
 function FinalizarCotizacion() {
+    var id_cliente = $('#fin_id_cliente').val();
+    var fecha = $('#fin_fecha').val();
     
- var id_cliente=$('#fin_id_cliente').val();
- var fecha=$('#fin_fecha').val();
-  $("#btn_finalizar_venta").hide();
-   
- var productsJSON = JSON.stringify(ventas);
+    if (!id_cliente || !fecha || ventas.length === 0) {
+        Swal.fire('Error', 'Complete todos los datos requeridos', 'error');
+        return;
+    }
+    
+    $("#btn_finalizar_venta").prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...');
+    
+    var productsJSON = JSON.stringify(ventas);
+    
     $.ajax({
-		url: '../controllers/venta_end_service.php',
-		type: 'POST',
-                dataType:"json", 
-		data: {
-			'productos': productsJSON ,
-            'id_cliente':id_cliente,
-            'fecha': fecha,
-			},
-         success:function(data){ 
-            if(data.success){ 
-                var documento=JSON.stringify(data.results[0].documento);
-                ventas=[];
-                //CargarProductosIngreso();
-                UpdateCarrito();
-                var html='';
-                html+='<p>Cotización registrada con Nro: '+documento+'<br>';
-                html+='<a href="invoice.php?iddoc='+documento+'" class="btn btn-success"><i class="mdi mdi-barcode-scan"></i> Ver Cotización</a>';
-                $('#textoVenta').append(html);
-            } 
-         },
-         error:function(jqXHR,textStatus,errorThrown)
-         {
-            alert("Error la guardar el cotizacion : "+errorThrown);
-	     
-         }
-	});//end ajax 
+        url: '../controllers/cotizacion_service.php',
+        type: 'POST',
+        dataType: "json",
+        data: {
+            'productos': productsJSON,
+            'id_cliente': id_cliente,
+            'fecha': fecha
+        },
+        success: function(data) { 
+            if (data.success) { 
+                var documento = data.results[0].documento;
+                
+                var html = `
+                    <div class="alert alert-success">
+                        <i class="ti ti-check-circle"></i> Cotización registrada exitosamente
+                    </div>
+                    <div class="text-center">
+                        <h5 class="mb-3">Número de cotización: <strong>${documento}</strong></h5>
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="invoice.php?iddoc=${documento}" class="btn btn-primary">
+                                <i class="ti ti-file-invoice me-1"></i> Ver Cotización
+                            </a>
+                            <button class="btn btn-outline-secondary" onclick="resetCotizacion()">
+                                <i class="ti ti-plus me-1"></i> Nueva Cotización
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                $('#textoVenta').html(html);
+                
+                // Resetear después de 5 segundos
+                setTimeout(function() {
+                    resetCotizacion();
+                    $('#ModalFinVenta').modal('hide');
+                }, 5000);
+            } else {
+                $('#textoVenta').html('<div class="alert alert-danger">Error al registrar la cotización</div>');
+                $("#btn_finalizar_venta").prop('disabled', false).html('<i class="ti ti-file-invoice"></i> Registrar Cotización');
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            $('#textoVenta').html('<div class="alert alert-danger">Error: ' + errorThrown + '</div>');
+            $("#btn_finalizar_venta").prop('disabled', false).html('<i class="ti ti-file-invoice"></i> Registrar Cotización');
+        }
+    });
 }
-    </script>
+</script>
 
+<style>
+/* Estilos personalizados */
+.card-header {
+    border-bottom: none;
+}
+
+.nav-pills .nav-link {
+    border-radius: 0;
+    padding: 12px 0;
+    color: #495057;
+    border-bottom: 3px solid transparent;
+}
+
+.nav-pills .nav-link.active {
+    background: none;
+    color: #0d6efd;
+    border-bottom-color: #0d6efd;
+    font-weight: 500;
+}
+
+.product-image-preview {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.no-image-placeholder {
+    background-color: #f8f9fa;
+    color: #6c757d;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+#carritoList thead th {
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+    z-index: 10;
+}
+
+.flatpickr-input {
+    background-color: white;
+}
+</style>
