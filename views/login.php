@@ -146,7 +146,13 @@
                     if (data.status === 'success') {
                         $("#msgbox").fadeTo(200, 0.1, function() {
                             $(this).removeClass().html('Ingresando...').addClass('alert alert-success').fadeTo(900, 1, function() {
-                                window.location.href = 'profile.php';
+                                // Redirigir según el rol
+                                if (data.id_rol === "3" || data.rol === "cliente") {
+                                    console.log('res_ rol: ' + data.id_rol )
+                                    window.location.href = 'tienda.php';
+                                } else {
+                                    window.location.href = 'profile.php';
+                                }
                             });
                         });
                     } else {

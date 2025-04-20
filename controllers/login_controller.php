@@ -45,7 +45,7 @@ function attemptLogin($username, $password) {
             createUserSession($row);
             
             logs_db("Usuario: ".$username." | INGRESO AL SISTEMA", $_SERVER['PHP_SELF']);
-            return ['status' => 'success', 'message' => 'Login exitoso'];
+            return ['status' => 'success', 'message' => 'Login exitoso' , 'id_rol' => $row['id_rol']];
         } else {
             // Password incorrecto
             handleFailedAttempt();

@@ -190,6 +190,7 @@ include('../layout/css.php');
                     </li>
 
                     <li class="header-profile">
+                        
                         <a href="#" class="d-block head-icon" role="button" data-bs-toggle="offcanvas"
                            data-bs-target="#profilecanvasRight" aria-controls="profilecanvasRight">
                             <img src="../assets/images/avtar/woman.jpg" alt="avtar"
@@ -198,6 +199,10 @@ include('../layout/css.php');
 
                         <div class="offcanvas offcanvas-end header-profile-canvas" tabindex="-1"
                              id="profilecanvasRight" aria-labelledby="profilecanvasRight">
+                             <div class="offcanvas-header">
+                              <h5 class="offcanvas-title" id="cartc8sdf78as7">Perfil</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                            </div>
                             <div class="offcanvas-body app-scroll">
                                 <ul class="">
                                     <li>

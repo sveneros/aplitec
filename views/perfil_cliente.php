@@ -1,6 +1,6 @@
 
 <?php
-        include('../layout/header.php');
+        include('../layout/header_clientes.php');
         ?>
 
       
@@ -13,12 +13,12 @@
                             <li class="">
                                 <a href="#" class="f-s-14 f-w-500">
                       <span>
-                        <i class="ph-duotone  ph-newspaper f-s-16"></i> Aplitec
+                        <i class="ph-duotone  ph-newspaper f-s-16"></i> Tienda
                       </span>
                                 </a>
                             </li>
                             <li class="active">
-                                <a href="#" class="f-s-14 f-w-500">Inicio</a>
+                                <a href="#" class="f-s-14 f-w-500">Perfil</a>
                             </li>
                         </ul>
                     </div>

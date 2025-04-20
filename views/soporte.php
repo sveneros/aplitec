@@ -9,7 +9,7 @@ include('../layout/header_clientes.php');
       <h4 class="main-title">Soporte Técnico</h4>
       <ul class="app-line-breadcrumbs mb-3">
         <li class="">
-          <a href="store.php" class="f-s-14 f-w-500">
+          <a href="tienda.php" class="f-s-14 f-w-500">
             <span>
               <i class="ph-duotone ph-house f-s-16"></i> Inicio
             </span>

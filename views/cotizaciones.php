@@ -1,7 +1,7 @@
 
 <link rel="stylesheet" type="text/css" href="../assets/vendor/datatable/jquery.dataTables.min.css">
 <?php
-include('../layout/header.php');
+include('../layout/header_clientes.php');
 ?>
 
 <div class="container-fluid">
@@ -20,7 +20,9 @@ include('../layout/header.php');
           <div class="row g-3">
               <div class="col-md-12"> 
                   <label for="nombre">NOMBRE</label>
+                  
                   <input type="text" id="nombre" name="nombre" class="form-control" readonly>
+                  <input type="hidden" id="client_id" name="client_id" value="<?php echo ($_SESSION['sml2020_svenerossys_id_usuario_registrado']);?>">
                   <input type="hidden" id="id_cotizacion" name="id_cotizacion">
               </div>
              
@@ -60,7 +62,7 @@ include('../layout/header.php');
           </a>
         </li>
         <li class="active">
-          <a href="#" class="f-s-14 f-w-500">Cotizaciones</a>
+          <a href="#" class="f-s-14 f-w-500">Mis Cotizaciones</a>
         </li>
       </ul>
       
@@ -88,7 +90,6 @@ include('../layout/header.php');
                   <th>Total</th>
                   <th>Estado</th>
                   <th>Ver</th>
-                  <th>Email</th>
                   
                 </tr>
               </thead>
@@ -137,11 +138,12 @@ $(function($){
 
   
 function ObtenerCotizaciones() {
+client_id = $('#client_id').val();
 $.ajax({
     url: '../controllers/quotes_controller.php',
     type: 'GET',
     dataType: "json",
-    data: {  },
+    data: { 'client_id': client_id, },
     success: function (data) {
     
     localStorage.setItem('sml2025_quotes', JSON.stringify(data)); // Store all categories in localStorage
@@ -174,7 +176,7 @@ const est = value.estado === 'V' ?
     '<span class="badge rounded-pill bg-danger badge-notification">DESHABILITADO</span>';
 const edi = '<button class="btn btn-primary" onclick="Ver(\'' + value.numero + '\')"><i class="fa fa-eye"></i></button>';
 
-const email1 = '<button class="btn btn-primary" onclick="Email1(\'' + value.numero + '\')"data-bs-toggle="modal" data-bs-target="#ModalEmail1"><i class="fa fa-message"></i></button>';
+
 html += `
     <tr role="row" class="odd">
         <td> ${value.numero }</td>
@@ -183,7 +185,7 @@ html += `
         <td>${value.total}</td>
         <td>${est}</td>
         <td>${edi}</td>
-        <td>${email1}</td> 
+        
     </tr>
     `;
 });
@@ -193,7 +195,7 @@ $('#basic-1').DataTable();
 }
 
     function Ver(id) {
-      window.location.href = 'quote.php?id=' + encodeURIComponent(id);
+      window.location.href = 'cotizacion.php?id=' + encodeURIComponent(id);
     }
 
     function Email1(elId){
@@ -208,56 +210,7 @@ $('#basic-1').DataTable();
         });
     }
 
-    function EnviarEmail1() {
-    $('#btn_submit_email1').hide(); // Ocultar el botón de enviar
-
-    // Obtener los valores del formulario
-    const email1 = $('#email1').val();
-    const nombre_usuario = $('#nombre').val();
-    const id_cotizacion = $('#id_cotizacion').val();
-
-    // Validar que el campo de email no esté vacío
-    if (!email1) {
-        alert('Por favor, corrige los errores en el formulario.');
-        $('#btn_submit_email1').show(); // Mostrar el botón de enviar nuevamente
-        return;
-    }
-
-    // Crear el objeto de datos
-    const data = {
-        email: email1,
-        nombre: nombre_usuario,
-        asunto: 'COTIZACION CONFIRMADA',
-        cuerpo: id_cotizacion
-    };
-
-    console.log("Datos a enviar:", data);
-
-    // Enviar la solicitud GET
-    $.ajax({
-        url: '../controllers/mailer.php', // URL del servidor
-        type: 'GET', // Método HTTP
-        data: data, // Datos a enviar (se convierten en parámetros de la URL)
-        success: (response) => {
-            if (response.success) {
-                $('#ModalEmail1').modal('hide'); // Cerrar el modal
-                Swal.fire('Email enviado', '', 'success'); // Mostrar mensaje de éxito
-            } else {
-                alert(response.error || 'Ocurrió un error al enviar email.'); // Mostrar error
-                $('#ModalEmail1').modal('show'); // Mostrar el modal nuevamente
-            }
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            if (textStatus === 'timeout') {
-                Swal.fire('Error', '¡La conexión a internet se ha interrumpido!', 'error'); // Error de timeout
-            } else {
-                Swal.fire('Error', 'Error al enviar: ' + errorThrown, 'error'); // Otros errores
-            }
-        }
-    }).always(() => {
-        $('#btn_submit_email1').show(); // Mostrar el botón de enviar nuevamente
-    });
-}
+    
 </script>
 
 

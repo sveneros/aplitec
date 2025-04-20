@@ -103,3 +103,9 @@ include('../layout/css.php');
 
 <!-- main section -->
 <main>
+<?php
+// Incluir el control de acceso
+include('../controllers/access_control.php');
+if(isset($_SESSION['sml2020_svenerossys_id_rol_usuario_registrado']))
+validateAccessOrDie(basename($_SERVER['PHP_SELF']));
+?>
