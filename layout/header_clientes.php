@@ -34,149 +34,38 @@ include('../layout/css.php');
                     <!-- Enlace a la tienda -->
                     <li class="header-cart">
                     <a href="#" class="d-block head-icon position-relative" role="button" data-bs-toggle="offcanvas"
-                       data-bs-target="#cartcanvasRight" aria-controls="cartcanvasRight">
+                       data-bs-target="#cartcanvasRight" aria-controls="cartcanvasRight" id="btnActualizarCarrito">
                       <i class="ph ph-shopping-cart-simple"></i>
                       <span
                               class="position-absolute translate-middle badge rounded-pill bg-danger badge-notification">4</span>
                     </a>
                     <div class="offcanvas offcanvas-end header-cart-canvas" tabindex="-1" id="cartcanvasRight"
                          aria-labelledby="cartcanvasRightLabel">
-                      <div class="offcanvas-header">
-                        <h5 class="offcanvas-title" id="cartcanvasRightLabel">Cart</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                      </div>
-                      <div class="offcanvas-body app-scroll p-0">
-                        <div class="head-container">
-                          <div class="head-box">
-                            <img src="../assets/images/ecommerce/19.jpg" alt="cart" class="h-50 me-3 b-r-10">
-                            <div class="flex-grow-1">
-                              <a class="mb-0 f-w-600 f-s-16" href="product_details.html" target="_blank"> Backpacks
-                              </a>
-                              <div>
-                                <i class="ti ti-star-filled text-warning f-s-12"></i>
-                                <i class="ti ti-star-filled text-warning f-s-12"></i>
-                                <i class="ti ti-star-filled text-warning f-s-12"></i>
-                                <i class="ti ti-star-filled  f-s-12  star-filled"></i>
-                                <i class="ti ti-star-filled  f-s-12  star-filled"></i>
-                              </div>
-                              <span class="text-secondary"><span class="text-dark f-w-400">size</span> : medium</span>
-                              <span class="text-secondary ms-2"><span class="text-dark f-w-400">Color</span> :
-                                Pink</span>
-                            </div>
-                            <div class="text-end">
-                              <i class="ph ph-trash f-s-18 text-danger close-btn"></i>
-                              <p class="text-muted f-w-500 mb-0">$600.50 x 1</p>
-                            </div>
-                          </div>
-                          <div class="head-box">
-                            <img src="../assets/images/ecommerce/13.jpg" alt="cart"
-                                 class="h-50 object-fit-cover me-3 b-r-10">
-                            <div class="flex-grow-1">
-                              <a class="mb-0 f-w-600 f-s-16" href="product_details.html" target="_blank"> Women's Watch</a>
-                              <div>
-                                <i class="ti ti-star-filled text-warning f-s-12"></i>
-                                <i class="ti ti-star-filled text-warning f-s-12"></i>
-                                <i class="ti ti-star-filled text-warning f-s-12"></i>
-                                <i class="ti ti-star-filled text-warning f-s-12"></i>
-                                <i class="ti ti-star-filled  f-s-12  star-filled"></i>
-                              </div>
-                              <span class="text-secondary"><span class="text-dark f-w-400">size</span> : small</span>
-                              <span class="text-secondary ms-2"><span class="text-dark f-w-400">Color</span> : Rose
-                                Gold</span>
-                            </div>
-                            <div class="text-end">
-                              <i class="ph ph-trash f-s-18 text-danger close-btn"></i>
-                              <p class="text-muted f-w-500 mb-0">$519.10 x 2</p>
-                            </div>
-                          </div>
-                          <div class="head-box">
-                            <img src="../assets/images/ecommerce/09.jpg" alt="cart"
-                                 class="h-50 object-fit-cover me-3 b-r-10">
-                            <div class="flex-grow-1">
-                              <a class="mb-0 f-w-600 f-s-16" href="product_details.html" target="_blank">Sandals</a>
-                              <div>
-                                <i class="ti ti-star-filled text-warning f-s-12"></i>
-                                <i class="ti ti-star-filled text-warning f-s-12"></i>
-                                <i class="ti ti-star-filled text-warning f-s-12"></i>
-                                <i class="ti ti-star-filled text-warning f-s-12"></i>
-                                <i class="ti ti-star-filled text-warning f-s-12"></i>
-                              </div>
-                              <span class="text-secondary"><span class="text-dark f-w-400">size</span> : 8</span>
-                              <span class="text-secondary ms-2"><span class="text-dark f-w-400">Color</span> :
-                                White</span>
-                            </div>
-                            <div class="text-end">
-                              <i class="ph ph-trash f-s-18 text-danger close-btn"></i>
-                              <p class="text-muted f-w-500 mb-0">$390 x 2</p>
-                            </div>
-                          </div>
-                          <div class="head-box ">
-                            <img src="../assets/images/ecommerce/23.jpg" alt="cart"
-                                 class="h-50 object-fit-cover me-3 b-r-10">
-                            <div class="flex-grow-1">
-                              <a class="mb-0 f-w-600 f-s-16" href="product_details.html" target="_blank"> Jackets</a>
-                              <div>
-                                <i class="ti ti-star-filled text-warning f-s-12"></i>
-                                <i class="ti ti-star-filled text-warning f-s-12"></i>
-                                <i class="ti ti-star-filled text-warning f-s-12"></i>
-                                <i class="ti ti-star-filled star-filled f-s-12"></i>
-                                <i class="ti ti-star-filled star-filled f-s-12"></i>
-                              </div>
-                              <span class="text-secondary"><span class="text-dark f-w-400">size</span> : XL</span>
-                              <span class="text-secondary ms-2"><span class="text-dark f-w-400">Color</span> :
-                                Blue</span>
-                            </div>
-                            <div class="text-end">
-                              <i class="ph ph-trash f-s-18 text-danger close-btn"></i>
-                              <p class="text-muted f-w-500 mb-0">$300.00 x 2</p>
-                            </div>
-                          </div>
-                          <div class="head-box ">
-                            <img src="../assets/images/ecommerce/11.jpg" alt="cart"
-                                 class="h-50 object-fit-cover me-3 b-r-10">
-                            <div class="flex-grow-1">
-                              <a class="mb-0 f-w-600 f-s-16" href="product_details.html" target="_blank"> Shoes</a>
-                              <div>
-                                <i class="ti ti-star-filled text-warning f-s-12"></i>
-                                <i class="ti ti-star-filled text-warning f-s-12"></i>
-                                <i class="ti ti-star-filled text-warning f-s-12"></i>
-                                <i class="ti ti-star-filled star-filled f-s-12"></i>
-                                <i class="ti ti-star-filled star-filled f-s-12"></i>
-                              </div>
-                              <span class="text-secondary"><span class="text-dark f-w-400">size</span> : 9</span>
-                              <span class="text-secondary ms-2"><span class="text-dark f-w-400">Color</span> :
-                                White</span>
-                            </div>
-                            <div class="text-end">
-                              <i class="ph ph-trash f-s-18 text-danger close-btn"></i>
-                              <p class="text-muted f-w-500 mb-0">$450.00 x 1</p>
-                            </div>
-                          </div>
-                          <div class="hidden-massage py-4 px-3">
-                            <img src="../assets/images/icons/cart.png" alt="cart" class="w-50 h-50 mb-3">
-                            <div>
-                              <h6 class="mb-0">Your Cart is Empty</h6>
-                              <p class="text-secondary mb-0">Add some items :)</p>
-                              <a class="btn btn-light-primary btn-xs mt-2" href="product_details.html">Shop
-                                Now</a>
-                            </div>
+                        <div class="offcanvas-header">
+                          <h5 class="offcanvas-title" id="cartcanvasRightLabel">Cart</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body app-scroll p-0">
+                          <div id="cart-items">
+                            <p class="text-center py-5">Tu carrito está vacío</p>
                           </div>
                         </div>
-                      </div>
-                      <div class="offcanvas-footer">
-                        <div class="head-box-footer p-3">
-                          <div class="mb-4">
-                            <h6 class="text-muted f-w-600">Total <span class="float-end">$3,468.00
-                              </span></h6>
-                          </div>
-                          <div class="header-cart-btn">
-                            <a href="./cart.html" target="_blank" role="button" class="btn btn-light-primary">
-                              <i class="ti ti-eye"></i> View Cart</a>
-                            <a href="./checkout.html" target="_blank" role="button" class="btn btn-light-success">
-                              Checkout <i class="ti ti-shopping-cart"></i></a>
-                          </div>
+                          
+                        <div class="offcanvas-footer">
+                            <div class="head-box-footer p-3">
+                              <!-- <div class="mb-4">
+                                <h6 class="text-muted f-w-600">Total <span class="float-end" id="cart-subtotal">Bs. 0.00</span></h6>
+                              </div> -->
+                              <div class="header-cart-btn">
+                                <button type="button" class="btn btn-light-primary" data-bs-dismiss="modal">
+                                  <i class="ti ti-eye"></i> Seguir comprando
+                                </button>
+                                <a href="checkout.php" class="btn btn-light-success" id="checkout-btn">
+                                  Proceder al pago <i class="ti ti-shopping-cart"></i>
+                                </a>
+                              </div>
+                            </div>
                         </div>
-                      </div>
                     </div>
                   </li>
 

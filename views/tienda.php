@@ -42,14 +42,14 @@ include('../layout/header_clientes.php');
                 </div>
               </form>
             </div>
-            <!-- <div>
+            <div>
               <a href="#" class="btn btn-primary position-relative" id="cart-button" data-bs-toggle="modal" data-bs-target="#cartModal">
                 <i class="ti ti-shopping-cart"></i>
                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cart-count">
                   0
                 </span>
               </a>
-            </div> -->
+            </div>
           </div>
         </div>
       </div>
@@ -153,19 +153,24 @@ include('../layout/header_clientes.php');
         <h5 class="modal-title">Tu Carrito de Compras</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body app-scroll p-0">
         <div id="cart-items">
           <p class="text-center py-5">Tu carrito está vacío</p>
         </div>
-        <div class="text-end mt-3">
-          <h5>Subtotal: <span id="cart-subtotal">Bs. 0.00</span></h5>
-        </div>
-      </div>
-      <div class="modal-footer justify-content-between">
-        <button type="button" class="btn btn-danger" id="clear-cart-btn">Limpiar Carrito</button>
-        <div>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Seguir comprando</button>
-          <a href="checkout.php" class="btn btn-primary" id="checkout-btn">Proceder al pago</a>
+        <div class="offcanvas-footer">
+          <div class="head-box-footer p-3">
+            <div class="mb-4">
+              <h6 class="text-muted f-w-600">Total <span class="float-end" id="cart-subtotal">Bs. 0.00</span></h6>
+            </div>
+            <div class="header-cart-btn">
+              <button type="button" class="btn btn-light-primary" data-bs-dismiss="modal">
+                <i class="ti ti-eye"></i> Seguir comprando
+              </button>
+              <a href="checkout.php" class="btn btn-light-success" id="checkout-btn">
+                Proceder al pago <i class="ti ti-shopping-cart"></i>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -186,6 +191,15 @@ include('../layout/footer.php');
 let allProducts = [];
 let allCategories = [];
 let cart = [];
+
+// Evento para mostrar el modal del carrito
+$('#cart-button').click(function() {
+  updateCartModal();
+});
+$('#btnActualizarCarrito').click(function() {
+  updateCartModal();
+});
+
 $(document).ready(function() {
   // Cargar datos iniciales
   loadBrands();
@@ -553,7 +567,17 @@ function addToCart(productId) {
   cart = JSON.parse(localStorage.getItem('cart'));
   const product = allProducts.find(p => p.id == productId);
   
-  if (!product) return;
+  if (!product) {
+    Swal.fire('Error', 'Producto no encontrado', 'error');
+    return;
+  }
+  
+  // Validar que el producto tenga precio
+  /* const price = product.precio_venta || 0;
+  if (price <= 0) {
+    Swal.fire('Advertencia', 'Este producto no tiene precio definido', 'warning');
+    return;
+  } */
   
   // Buscar si el producto ya está en el carrito
   const existingItem = cart.find(item => item.productId === productId);
@@ -572,7 +596,6 @@ function addToCart(productId) {
     cart.push({
       productId: productId,
       quantity: 1,
-      price: product.precio_venta || 0,
       name: product.producto_nombre,
       image: productImage
     });
@@ -593,7 +616,13 @@ function addToCart(productId) {
 
 function updateCartCount() {
   cart = JSON.parse(localStorage.getItem('cart'));
-  $('#cart-count').text(cart.reduce((total, item) => total + item.quantity, 0));
+  const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+  
+  // Actualizar en el modal
+  $('#cart-count').text(totalItems);
+  
+  // Actualizar también en el header (si existe el elemento)
+  $('.header-cart .badge-notification').text(totalItems);
   
   // Actualizar estado del botón de checkout
   if (cart.length === 0) {
@@ -613,75 +642,35 @@ function updateCartModal() {
     return;
   }
   
-  let html = '<div class="table-responsive"><table class="table">';
-  html += `
-    <thead>
-      <tr>
-        <th>Producto</th>
-        <th>Precio</th>
-        <th>Cantidad</th>
-        <th>Subtotal</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-  `;
-  
+  let html = '<div class="head-container">';
   let subtotal = 0;
   
   cart.forEach(item => {
-    const itemSubtotal = item.price * item.quantity;
-    subtotal += itemSubtotal;
+    //const itemSubtotal = item.price * item.quantity;
+    //subtotal += itemSubtotal;
     
     html += `
-      <tr>
-        <td>
-          <div class="d-flex align-items-center">
-            <img src="../${item.image}" class="img-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;" onerror="this.src='../assets/images/ecommerce/no-image.jpg'">
-            ${item.name}
+      <div class="head-box">
+        <img src="../${item.image}" alt="${item.name}" class="h-50 me-3 b-r-10" onerror="this.src='../assets/images/ecommerce/no-image.jpg'">
+        <div class="flex-grow-1">
+          <a class="mb-0 f-w-600 f-s-16">${item.name}</a>
+          <div>
+            <span class="text-secondary"><span class="text-dark f-w-400">Cantidad:</span> ${item.quantity}</span>
           </div>
-        </td>
-        <td>Bs. ${item.price.toFixed(2)}</td>
-        <td>
-          <div class="input-group" style="width: 120px;">
-            <button class="btn btn-outline-secondary btn-sm update-quantity" data-product-id="${item.productId}" data-action="decrease">-</button>
-            <input type="number" class="form-control form-control-sm text-center quantity-input" 
-                   value="${item.quantity}" min="1" data-product-id="${item.productId}">
-            <button class="btn btn-outline-secondary btn-sm update-quantity" data-product-id="${item.productId}" data-action="increase">+</button>
-          </div>
-        </td>
-        <td>Bs. ${itemSubtotal.toFixed(2)}</td>
-        <td>
-          <button class="btn btn-sm btn-outline-danger remove-from-cart" data-product-id="${item.productId}">
-            <i class="ti ti-trash"></i>
-          </button>
-        </td>
-      </tr>
+        </div>
+        <div class="text-end">
+          <i class="ph ph-trash f-s-18 text-danger close-btn remove-from-cart" data-product-id="${item.productId}"></i>
+         
+        </div>
+      </div>
     `;
   });
   
-  html += '</tbody></table></div>';
+  html += '</div>';
   
   $('#cart-items').html(html);
   $('#cart-subtotal').text(`Bs. ${subtotal.toFixed(2)}`);
   $('#checkout-btn').removeClass('disabled');
-  
-  // Eventos para actualizar cantidades
-  $('.update-quantity').click(function() {
-    const productId = $(this).data('product-id');
-    const action = $(this).data('action');
-    updateCartQuantity(productId, action);
-  });
-  
-  $('.quantity-input').change(function() {
-    const productId = $(this).data('product-id');
-    const newQuantity = parseInt($(this).val());
-    if (newQuantity > 0) {
-      setCartQuantity(productId, newQuantity);
-    } else {
-      $(this).val(1);
-    }
-  });
   
   // Evento para eliminar del carrito
   $('.remove-from-cart').click(function() {
@@ -902,5 +891,49 @@ function displayImageGallery(product) {
 /* Estilo para el botón limpiar carrito */
 #clear-cart-btn {
   margin-right: auto;
+}
+
+/* Estilos para el modal del carrito */
+#cartModal .modal-body {
+  padding: 0;
+}
+
+#cartModal .head-container {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+#cartModal .head-box {
+  display: flex;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  align-items: center;
+}
+
+#cartModal .head-box img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+}
+
+#cartModal .head-box-footer {
+  border-top: 1px solid #eee;
+}
+
+#cartModal .header-cart-btn {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+#cartModal .close-btn {
+  cursor: pointer;
+}
+
+#cartModal .offcanvas-footer {
+  position: sticky;
+  bottom: 0;
+  background: white;
+  z-index: 1;
 }
 </style>
