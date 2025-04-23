@@ -46,6 +46,9 @@ include('../layout/css.php');
                           <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                         </div>
                         <div class="offcanvas-body app-scroll p-0">
+                            <button type="button" class="btn btn-light-primary btn-close" data-bs-dismiss="offcanvas">
+                                 
+                            </button>
                           <div id="cart-items">
                             <p class="text-center py-5">Tu carrito está vacío</p>
                           </div>
@@ -57,10 +60,8 @@ include('../layout/css.php');
                                 <h6 class="text-muted f-w-600">Total <span class="float-end" id="cart-subtotal">Bs. 0.00</span></h6>
                               </div> -->
                               <div class="header-cart-btn">
-                                <button type="button" class="btn btn-light-primary" data-bs-dismiss="modal">
-                                  <i class="ti ti-eye"></i> Seguir comprando
-                                </button>
-                                <a href="checkout.php" class="btn btn-light-success" id="checkout-btn">
+                                
+                                <a href="cotizar.php" class="btn btn-light-success" id="checkout-btn">
                                   Proceder al pago <i class="ti ti-shopping-cart"></i>
                                 </a>
                               </div>

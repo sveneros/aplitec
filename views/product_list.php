@@ -1,9 +1,9 @@
 <link rel="stylesheet" type="text/css" href="../assets/vendor/datatable/jquery.dataTables.min.css">
 <!-- Galería de imágenes -->
 <!-- lightGallery CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lightgallery.min.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lg-zoom.min.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lg-fullscreen.min.css" />
+<link rel="stylesheet" href="../assets/css/lightgallery.min.css" />
+<link rel="stylesheet" href="../assets/css/lg-zoom.min.css" />
+<link rel="stylesheet" href="../assets/css/lg-fullscreen.min.css" />
 
 <?php
 include('../layout/header.php');
@@ -92,9 +92,9 @@ include('../layout/footer.php');
 <script src="../assets/js/jquery-key-restrictions.min.js"></script>
 <!-- Galería de imágenes -->
 <!-- lightGallery JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/lightgallery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/zoom/lg-zoom.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/fullscreen/lg-fullscreen.min.js"></script>
+<script src=../assets/js/lightgallery.min.js"></script>
+<script src="../assets/js/lg-zoom.min.js"></script>
+<script src="../assets/js/lg-fullscreen.min.js"></script>
 <script>
 $(function($){
     ObtenerProductosIngreso();

@@ -1,7 +1,7 @@
 <!-- lightGallery CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lightgallery.min.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lg-zoom.min.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lg-fullscreen.min.css" />
+<link rel="stylesheet" href="../assets/css/lightgallery.min.css" />
+<link rel="stylesheet" href="../assets/css/lg-zoom.min.css" />
+<link rel="stylesheet" href="../assets/css/lg-fullscreen.min.css" />
 <?php
 include('../layout/header_clientes.php');
 ?>
@@ -42,14 +42,7 @@ include('../layout/header_clientes.php');
                 </div>
               </form>
             </div>
-            <div>
-              <a href="#" class="btn btn-primary position-relative" id="cart-button" data-bs-toggle="modal" data-bs-target="#cartModal">
-                <i class="ti ti-shopping-cart"></i>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cart-count">
-                  0
-                </span>
-              </a>
-            </div>
+           
           </div>
         </div>
       </div>
@@ -163,12 +156,7 @@ include('../layout/header_clientes.php');
               <h6 class="text-muted f-w-600">Total <span class="float-end" id="cart-subtotal">Bs. 0.00</span></h6>
             </div>
             <div class="header-cart-btn">
-              <button type="button" class="btn btn-light-primary" data-bs-dismiss="modal">
-                <i class="ti ti-eye"></i> Seguir comprando
-              </button>
-              <a href="checkout.php" class="btn btn-light-success" id="checkout-btn">
-                Proceder al pago <i class="ti ti-shopping-cart"></i>
-              </a>
+              
             </div>
           </div>
         </div>
@@ -182,9 +170,9 @@ include('../layout/footer.php');
 ?>
 
 <!-- lightGallery JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/lightgallery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/zoom/lg-zoom.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/fullscreen/lg-fullscreen.min.js"></script>
+<script src="../assets/js/lightgallery.min.js"></script>
+<script src="../assets/js/lg-zoom.min.js"></script>
+<script src="../assets/js/lg-fullscreen.min.js"></script>
 
 <script>
 // Variable global para almacenar productos
@@ -192,10 +180,7 @@ let allProducts = [];
 let allCategories = [];
 let cart = [];
 
-// Evento para mostrar el modal del carrito
-$('#cart-button').click(function() {
-  updateCartModal();
-});
+
 $('#btnActualizarCarrito').click(function() {
   updateCartModal();
 });
