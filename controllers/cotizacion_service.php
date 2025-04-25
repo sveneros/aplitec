@@ -20,10 +20,14 @@ $data = array(
 );
 
 try {
-    if (isset($_POST['productos']) && isset($_POST['id_cliente']) && isset($_POST['fecha'])) {
+    if (isset($_POST['productos']) && isset($_POST['id_cliente']) && isset($_POST['fecha']) && isset($_POST['tipo'])) {
         $id_cliente = $_POST['id_cliente'];
         $productsArr = json_decode($_POST['productos'], true);
         $fecha = $_POST['fecha'];
+        if($_POST['tipo']=="cliente")
+        $estado = "CLI";
+        else
+        $estado = "COT";
         
         // Validar datos
         if (empty($id_cliente)) {
@@ -66,7 +70,7 @@ try {
             $total,
             $total,
             0,
-            'V'
+            $estado
         );
         
         logs_db("Se agregó el documento: $numero_documento de tipo: $id_tipo_documento", $_SERVER['PHP_SELF']);

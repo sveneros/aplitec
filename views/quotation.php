@@ -798,7 +798,8 @@ function FinalizarCotizacion() {
         data: {
             'productos': productsJSON,
             'id_cliente': id_cliente,
-            'fecha': fecha
+            'fecha': fecha,
+            'tipo': "cotizador"
         },
         success: function(data) { 
             if (data.success) { 

@@ -230,7 +230,7 @@ function renderCartItems(cart, allProducts) {
         </td>
         <td>
           <button class="btn btn-sm btn-danger remove-item">
-            <i class="ti ti-trash"></i> Eliminar
+            <i class="ti ti-trash"></i>
           </button>
         </td>
       </tr>
@@ -431,6 +431,7 @@ function sendQuoteRequest(productsArr) {
   // Obtener fecha actual en formato YYYY-MM-DD
   const today = new Date();
   const fecha = today.toISOString().split('T')[0];
+  id_cliente = $('#id_cliente').val();
   
   // Enviar datos al servicio de cotización
   $.ajax({
@@ -439,8 +440,9 @@ function sendQuoteRequest(productsArr) {
     dataType: 'json',
     data: {
       productos: JSON.stringify(productsArr),
-      id_cliente: 1, // Aquí deberías usar el ID del cliente/usuario real
-      fecha: fecha
+      id_cliente: id_cliente,
+      fecha: fecha,
+      'tipo': "cliente"
     },
     success: function(response) {
       Swal.close();

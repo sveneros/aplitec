@@ -169,9 +169,14 @@ cant_prod=localData.length;
 
 let html = '';
 $.each(localData, function(key, value) {
-const est = value.estado === 'V' ?
-    '<span class="badge rounded-pill bg-success badge-notification">HABILITADO</span>' :
-    '<span class="badge rounded-pill bg-danger badge-notification">DESHABILITADO</span>';
+  if(value.estado === 'CLI')
+est = '<span class="badge rounded-pill bg-info badge-notification">REGISTRADO POR CLIENTE</span>';
+else if(value.estado === 'RECH')
+est = '<span class="badge rounded-pill bg-danger badge-notification">RECHAZADO</span>';
+else if(value.estado === 'APRO')
+est = '<span class="badge rounded-pill bg-success badge-notification">APROBADO</span>';
+else
+est = '<span class="badge rounded-pill bg-warning badge-notification">EN REVISIÓN</span>';
 const edi = '<button class="btn btn-primary" onclick="Ver(\'' + value.numero + '\')"><i class="fa fa-eye"></i></button>';
 
 const email1 = '<button class="btn btn-primary" onclick="Email1(\'' + value.numero + '\')"data-bs-toggle="modal" data-bs-target="#ModalEmail1"><i class="fa fa-message"></i></button>';

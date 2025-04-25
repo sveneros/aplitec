@@ -62,7 +62,7 @@ include('../layout/css.php');
                               <div class="header-cart-btn">
                                 
                                 <a href="cotizar.php" class="btn btn-light-success" id="checkout-btn">
-                                  Proceder al pago <i class="ti ti-shopping-cart"></i>
+                                  Proceder a Cotizar <i class="ti ti-shopping-cart"></i>
                                 </a>
                               </div>
                             </div>
@@ -106,6 +106,7 @@ include('../layout/css.php');
                                         <div class="text-center mt-2">
                                             <h6 class="mb-0"> <?php if (isset($_SESSION['sml2020_svenerossys_nombre_usuario_registrado'])) echo ($_SESSION['sml2020_svenerossys_nombre_usuario_registrado']);?></h6>
                                             <p class="f-s-12 mb-0 text-secondary"><?php if (isset($_SESSION['sml2020_svenerossys_nombre_usuario_registrado']))echo ($_SESSION['sml2020_svenerossys_email_usuario_registrado']);?>
+                                            <input type="hidden" id="id_cliente" value="<?php  echo ($_SESSION['sml2020_svenerossys_id_usuario_registrado']);?>">
                                             </p>
                                         </div>
                                     </li>
