@@ -177,7 +177,7 @@ else if(value.estado === 'APRO')
 est = '<span class="badge rounded-pill bg-success badge-notification">APROBADO</span>';
 else
 est = '<span class="badge rounded-pill bg-warning badge-notification">EN REVISIÓN</span>';
-const edi = '<button class="btn btn-primary" onclick="Ver(\'' + value.numero + '\')"><i class="fa fa-eye"></i></button>';
+const edi = '<button class="btn btn-primary" onclick="Ver(\'' + value.numero + '\')"><i class="fa fa-eye"></i></button> <button class="btn btn-warning" onclick="Editar(\'' + value.numero + '\')"><i class="fa fa-pencil"></i></button>';
 
 const email1 = '<button class="btn btn-primary" onclick="Email1(\'' + value.numero + '\')"data-bs-toggle="modal" data-bs-target="#ModalEmail1"><i class="fa fa-message"></i></button>';
 html += `
@@ -199,6 +199,10 @@ $('#basic-1').DataTable();
 
     function Ver(id) {
       window.location.href = 'quote.php?id=' + encodeURIComponent(id);
+    }
+
+    function Editar(id) {
+      window.location.href = 'quote_edit.php?id=' + encodeURIComponent(id);
     }
 
     function Email1(elId){

@@ -17,6 +17,19 @@ include('../layout/header.php');
                         <button type="button" class="btn btn-lg ms-2" id="btnConvertToDollars">
                             <i class="ti ti-currency-dollar"></i> <span id="btnConvertText">Mostrar en Dólares</span>
                         </button>
+                        <!-- Botones de edición -->
+                        <button type="button" class="btn btn-lg ms-2" id="btnEditQuote">
+                            <i class="ti ti-edit"></i> Editar Cotización
+                        </button>
+                        <button type="button" class="btn btn-lg ms-2 btn-success" id="btnApproveQuote" style="display: none;">
+                            <i class="ti ti-check"></i> Aprobar Cotización
+                        </button>
+                        <button type="button" class="btn btn-lg ms-2 btn-primary" id="btnSaveChanges" style="display: none;">
+                            <i class="ti ti-device-floppy"></i> Guardar Cambios
+                        </button>
+                        <button type="button" class="btn btn-lg ms-2 btn-light" id="btnCancelEdit" style="display: none;">
+                            <i class="ti ti-x"></i> Cancelar
+                        </button>
                     </div>
                 </div>
             </div>
@@ -38,15 +51,131 @@ include('../layout/header.php');
 <script src="../assets/js/jspdf.umd.min.js"></script>
 <script src="../assets/js/jspdf.plugin.autotable.min.js"></script>
 
+<!-- Modal para editar producto -->
+<div class="modal fade" id="editProductModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editProductForm">
+                    <input type="hidden" id="editItemIndex">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Producto</label>
+                                <input type="text" class="form-control" id="editProductName" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Código</label>
+                                <input type="text" class="form-control" id="editProductCode">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Cantidad</label>
+                                <input type="number" class="form-control" id="editProductQuantity" min="1" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Precio Unitario (Bs.)</label>
+                                <input type="number" step="0.01" class="form-control" id="editProductPrice" min="0" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Total (Bs.)</label>
+                                <input type="text" class="form-control" id="editProductTotal" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control" id="editProductDescription" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnUpdateProduct">Actualizar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 // Variables globales
 var monedaActual = 'BS';
 var tipoCambio = 1;
 var doc; // Variable global para el documento PDF
+var editMode = false;
+var originalQuoteData = null;
+var quote = {}; // Almacenará los datos de la cotización
 
 $(document).ready(function() {
     obtenerTipoCambioActual().then(() => {
         mostrarQuote();
+    });
+
+    // Botón para entrar en modo edición
+    $('#btnEditQuote').click(function() {
+        enterEditMode();
+    });
+
+    // Botón para aprobar cotización
+    $('#btnApproveQuote').click(function() {
+        Swal.fire({
+            title: '¿Aprobar esta cotización?',
+            text: "Esta acción cambiará el estado a 'APR' (Aprobado)",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, aprobar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                saveChanges(true);
+            }
+        });
+    });
+
+    // Botón para guardar cambios
+    $('#btnSaveChanges').click(function() {
+        saveChanges(false);
+    });
+
+    // Botón para cancelar edición
+    $('#btnCancelEdit').click(function() {
+        exitEditMode();
+    });
+
+    // Botón para actualizar producto en modal
+    $('#btnUpdateProduct').click(function() {
+        const index = $('#editItemIndex').val();
+        const producto = quote.detalle[index];
+        
+        producto.producto = $('#editProductName').val();
+        producto.codigo = $('#editProductCode').val();
+        producto.cantidad = parseFloat($('#editProductQuantity').val()) || 0;
+        producto.precio_unitario = parseFloat($('#editProductPrice').val()) || 0;
+        producto.precio_total = producto.cantidad * producto.precio_unitario;
+        producto.descripcion = $('#editProductDescription').val();
+        
+        // Cerrar modal
+        bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
+        
+        // Re-renderizar
+        renderizarQuote(quote);
+        enterEditMode(); // Re-entrar en modo edición
+        updateTotals();
     });
 });
 
@@ -92,14 +221,57 @@ function mostrarQuote() {
     var id = obtenerParametroId();
     if (!id) return;
 
+    // Primero intentar con localStorage
     var localData = JSON.parse(localStorage.getItem('sml2025_quotes')) || [];
-    var quote = localData.find(q => q.numero == id);
+    var localQuote = localData.find(q => q.numero == id);
     
-    if (quote) {
+    if (localQuote) {
         $('#tipoCambioActual').text(tipoCambio.toFixed(2));
+        quote = localQuote;
         renderizarQuote(quote);
     } else {
-        $('#quoteDetails').html('<p>No se encontró la cotización.</p>');
+        // Si no está en localStorage, obtener del servidor
+        $.ajax({
+            url: '../controllers/cotizacion_controller.php?id=' + id,
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    // Formatear los datos para que coincidan con el formato esperado
+                    const doc = response.documento;
+                    const detalle = response.detalle;
+                    
+                    quote = {
+                        numero: doc.id_documento.toString(),
+                        nombre: doc.nombre,
+                        apellido1: doc.apellido1,
+                        apellido2: doc.apellido2,
+                        direccion: doc.direccion,
+                        telefono: doc.telefono,
+                        celular: doc.celular,
+                        fecha: doc.fecha.split(' ')[0], // Solo la fecha
+                        vendedor: 'Representante de Ventas', // Puedes ajustar esto
+                        detalle: detalle.map(item => ({
+                            producto: item.producto,
+                            descripcion: item.descripcion,
+                            codigo: item.codigo || '',
+                            cantidad: item.cantidad,
+                            precio_unitario: item.precio_unitario,
+                            precio_total: item.precio_total,
+                            id_marca: item.id_marca || 0,
+                            marca: item.marca || ''
+                        }))
+                    };
+                    
+                    renderizarQuote(quote);
+                } else {
+                    $('#quoteDetails').html('<p>No se encontró la cotización.</p>');
+                }
+            },
+            error: function() {
+                $('#quoteDetails').html('<p>Error al cargar la cotización.</p>');
+            }
+        });
     }
 }
 
@@ -156,22 +328,47 @@ function renderizarQuote(quote) {
             <tr>
                 <td>${index + 1}</td>
                 <td>${detalle.codigo || 'N/A'}</td>
-                <td>${detalle.cantidad}</td>
+                <td>${editMode ? `<input type="number" class="form-control form-control-sm edit-quantity" value="${detalle.cantidad}" min="1">` : detalle.cantidad}</td>
                 <td>
                     <strong>${detalle.producto}</strong><br>
                     ${detalle.descripcion}
                 </td>
-                <td class="precio-unitario text-end">${formatearMoneda(detalle.precio_unitario, 'BS')}</td>
-                <td class="precio-total text-end">${formatearMoneda(detalle.precio_total, 'BS')}</td>
+                <td class="precio-unitario text-end">${editMode ? `<input type="number" class="form-control form-control-sm edit-price" value="${detalle.precio_unitario}" step="0.01" min="0">` : formatearMoneda(detalle.precio_unitario, 'BS')}</td>
+                <td class="precio-total text-end ${editMode ? 'editable-total' : ''}">${formatearMoneda(detalle.precio_total, 'BS')}</td>
             </tr>`;
+        
+        if (editMode) {
+            html += `
+                <div class="d-flex gap-1 mt-1">
+                    <button class="btn btn-sm btn-outline-primary edit-product-btn" data-index="${index}">
+                        <i class="ti ti-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger remove-product-btn" data-index="${index}">
+                        <i class="ti ti-trash"></i>
+                    </button>
+                </div>`;
+        }
     });
+    
+    if (editMode) {
+        html += `
+            <tr class="add-product-row">
+                <td colspan="4">
+                    <button class="btn btn-sm btn-success" id="btnAddProduct">
+                        <i class="ti ti-plus"></i> Agregar Producto
+                    </button>
+                </td>
+                <td class="text-end"><strong>SUBTOTAL</strong></td>
+                <td class="text-end"><strong class="subtotal">${formatearMoneda(calculateSubtotal(), 'BS')}</strong></td>
+            </tr>`;
+    }
     
     html += `
                     </tbody>
                     <tfoot>
                         <tr>
                             <td colspan="5" class="text-end"><strong>TOTAL</strong></td>
-                            <td class="total-cotizacion text-end"><strong>${formatearMoneda(totalBs, 'BS')}</strong></td>
+                            <td class="total-cotizacion text-end"><strong>${formatearMoneda(totalBs + 50, 'BS')}</strong></td>
                         </tr>
                     </tfoot>
                 </table>
@@ -213,6 +410,57 @@ function renderizarQuote(quote) {
             monedaActual = 'BS';
         }
     });
+
+    // Eventos para edición si estamos en modo edición
+    if (editMode) {
+        // Eventos para edición rápida
+        $('.edit-quantity, .edit-price').on('change input', function() {
+            const row = $(this).closest('tr');
+            const index = row.index();
+            
+            // Actualizar datos en memoria
+            quote.detalle[index].cantidad = parseFloat($(this).closest('tr').find('.edit-quantity').val()) || 0;
+            quote.detalle[index].precio_unitario = parseFloat($(this).closest('tr').find('.edit-price').val()) || 0;
+            quote.detalle[index].precio_total = quote.detalle[index].cantidad * quote.detalle[index].precio_unitario;
+            
+            // Actualizar total en fila
+            row.find('.editable-total').text(formatearMoneda(quote.detalle[index].precio_total, 'BS'));
+            
+            // Actualizar totales
+            updateTotals();
+        });
+        
+        // Botón para agregar producto
+        $('#btnAddProduct').click(showAddProductModal);
+        
+        // Botones para editar producto (modal completo)
+        $('.edit-product-btn').click(function() {
+            const index = $(this).data('index');
+            showEditProductModal(index);
+        });
+        
+        // Botones para eliminar producto
+        $('.remove-product-btn').click(function() {
+            const index = $(this).data('index');
+            
+            Swal.fire({
+                title: '¿Eliminar este producto?',
+                text: "Esta acción no se puede deshacer",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    quote.detalle.splice(index, 1);
+                    renderizarQuote(quote);
+                    enterEditMode(); // Re-entrar en modo edición
+                    updateTotals();
+                }
+            });
+        });
+    }
 }
 
 function convertirADolares() {
@@ -392,7 +640,7 @@ function generatePDF() {
     // Total
     doc.setFontSize(10);
     doc.setFont(undefined, 'bold');
-    doc.text(`TOTAL: ${formatearMoneda(totalBs, 'BS')}`, pageWidth - margin, finalY, {align: 'right'});
+    doc.text(`TOTAL: ${formatearMoneda(totalBs + 50, 'BS')}`, pageWidth - margin, finalY, {align: 'right'});
     finalY += lineHeight * 2;
     
     // Términos y condiciones
@@ -419,6 +667,116 @@ function generatePDF() {
     
     // Guardar el PDF
     doc.save(`Cotizacion_${quote.numero}.pdf`);
+}
+
+// Función para entrar en modo edición
+function enterEditMode() {
+    editMode = true;
+    originalQuoteData = JSON.parse(JSON.stringify(quote)); // Copia profunda
+    
+    // Mostrar/ocultar botones
+    $('#btnEditQuote').hide();
+    $('#btnConvertToDollars').hide();
+    $('#btnApproveQuote').show();
+    $('#btnSaveChanges').show();
+    $('#btnCancelEdit').show();
+    
+    // Re-renderizar en modo edición
+    renderizarQuote(quote);
+}
+
+// Función para salir del modo edición
+function exitEditMode() {
+    editMode = false;
+    
+    // Restaurar datos originales
+    quote = JSON.parse(JSON.stringify(originalQuoteData));
+    renderizarQuote(quote);
+    
+    // Mostrar/ocultar botones
+    $('#btnEditQuote').show();
+    $('#btnConvertToDollars').show();
+    $('#btnApproveQuote').hide();
+    $('#btnSaveChanges').hide();
+    $('#btnCancelEdit').hide();
+}
+
+// Función para mostrar modal de agregar producto
+function showAddProductModal() {
+    $('#editItemIndex').val('-1'); // Indicador de nuevo producto
+    $('#editProductName').val('');
+    $('#editProductCode').val('');
+    $('#editProductQuantity').val(1);
+    $('#editProductPrice').val(0);
+    $('#editProductDescription').val('');
+    $('#editProductTotal').val('0.00');
+    
+    // Mostrar modal
+    const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
+    modal.show();
+}
+
+// Función para calcular subtotal
+function calculateSubtotal() {
+    return quote.detalle.reduce((sum, item) => sum + (item.precio_total || 0), 0);
+}
+
+// Función para actualizar totales
+function updateTotals() {
+    const subtotal = calculateSubtotal();
+    const envio = 50; // Costo fijo de envío
+    
+    $('.subtotal').text(formatearMoneda(subtotal, 'BS'));
+    $('.total-cotizacion').html(`<strong>${formatearMoneda(subtotal + envio, 'BS')}</strong>`);
+}
+
+// Función para guardar cambios
+function saveChanges(approve) {
+    const id = obtenerParametroId();
+    if (!id) return;
+    
+    // Preparar datos para enviar
+    const data = {
+        id_documento: parseInt(id),
+        detalle: quote.detalle.map(item => ({
+            producto: item.producto,
+            descripcion: item.descripcion || '',
+            codigo: item.codigo || '',
+            cantidad: item.cantidad,
+            precio_unitario: item.precio_unitario,
+            precio_total: item.precio_total,
+            id_marca: item.id_marca || 0,
+            marca: item.marca || ''
+        })),
+        total: calculateSubtotal() + 50, // Subtotal + envío
+        estado: approve ? 'APR' : 'COT'
+    };
+    
+    // Enviar al servidor
+    $.ajax({
+        url: '../controllers/cotizacion_controller.php',
+        type: 'PUT',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function(response) {
+            if (response.success) {
+                Swal.fire({
+                    title: approve ? 'Cotización Aprobada' : 'Cambios Guardados',
+                    text: response.message,
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    // Recargar la cotización con los nuevos datos
+                    location.reload();
+                });
+            } else {
+                Swal.fire('Error', response.error || 'Error al guardar cambios', 'error');
+            }
+        },
+        error: function(xhr, status, error) {
+            Swal.fire('Error', 'Error al conectar con el servidor: ' + error, 'error');
+        }
+    });
 }
 </script>
 
@@ -482,6 +840,37 @@ function generatePDF() {
     text-align: right;
 }
 
+/* Estilos para modo edición */
+.edit-quantity, .edit-price {
+    width: 80px;
+    display: inline-block;
+}
+
+.editable-total {
+    font-weight: bold;
+}
+
+.add-product-row td {
+    background-color: #f8f9fa;
+}
+
+/* Estilos para el modal */
+.modal-content {
+    border-radius: 10px;
+}
+
+.modal-header {
+    border-bottom: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+    border-radius: 10px 10px 0 0;
+}
+
+.modal-footer {
+    border-top: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+    border-radius: 0 0 10px 10px;
+}
+
 @media print {
     body {
         background-color: white;
@@ -502,6 +891,11 @@ function generatePDF() {
     
     .quote-body tr {
         page-break-inside: avoid;
+    }
+    
+    /* Ocultar botones de edición al imprimir */
+    #btnEditQuote, #btnApproveQuote, #btnSaveChanges, #btnCancelEdit {
+        display: none !important;
     }
 }
 </style>
