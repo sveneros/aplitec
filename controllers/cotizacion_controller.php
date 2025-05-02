@@ -3,7 +3,7 @@ include("conx.php");
 include("funciones.php");
 
 header('Access-Control-Allow-Origin: *'); 
-header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
+header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE, OPTIONS');
 header("Content-Type: application/json; charset=UTF-8");
 header("Expires: 0");
 header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
@@ -54,6 +54,48 @@ try {
             $response['error'] = 'Cotización no encontrada';
         }
     }
+
+    elseif ($method === 'PATCH') {
+
+        $json = file_get_contents('php://input');
+        $data = json_decode($json, true);
+        
+        if (!$data || !isset($data['id_documento'])) {
+            throw new Exception("Datos JSON inválidos o falta ID de documento");
+        }
+        
+        $link->autocommit(false); // Iniciar transacción
+        
+        try {
+            $id_documento = $data['id_documento'];
+            $estado = 'APRO'; // Forzamos el estado APRO
+            
+            // 1. Actualizar solo el estado del documento
+            $query = "UPDATE documentos SET 
+                    estado = ?
+                    WHERE id_documento = ? AND id_tipo_documento = 5";
+            $stmt = $link->prepare($query);
+            $stmt->bind_param("si", $estado, $id_documento);
+            $stmt->execute();
+            
+            if ($stmt->affected_rows === 0) {
+                throw new Exception("No se pudo aprobar la cotización (documento no encontrado o ya estaba aprobado)");
+            }
+            
+            $link->commit();
+            
+            $response['success'] = true;
+            $response['message'] = 'Cotización aprobada correctamente';
+            
+            // Registrar en logs
+            logs_db("Cotización aprobada: $id_documento", "quote_controller.php");
+            
+        } catch (Exception $e) {
+            $link->rollback();
+            throw $e;
+        }
+    }
+        
     // Actualizar cotización
     elseif ($method === 'PUT') {
         $json = file_get_contents('php://input');

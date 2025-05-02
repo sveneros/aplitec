@@ -506,11 +506,42 @@ $(document).ready(function() {
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-                saveQuote(true);
+                aprobarCotizacion();
             }
         });
     });
     
+    function aprobarCotizacion() {
+    const idCotizacion = $('#id_cotizacion').val(); // Asumo que tienes un campo oculto con el ID
+            
+            $.ajax({
+                url: '../controllers/cotizacion_controller.php',
+                type: 'PATCH', // Usamos PATCH en lugar de PUT
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    id_documento: idCotizacion,
+                    estado: 'APRO' // Solo enviamos estos dos campos
+                }),
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            title: '¡Éxito!',
+                            text: response.message,
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.href = 'quotes.php';
+                        });
+                    } else {
+                        Swal.fire('Error', response.error || 'Error al aprobar la cotización', 'error');
+                    }
+                },
+                error: function(xhr) {
+                    Swal.fire('Error', 'Ocurrió un error en la comunicación con el servidor', 'error');
+                }
+            });
+}
+
     // Función para guardar cotización
     function saveQuote(approve) {
         const quoteId = $('#id_cotizacion').val();
@@ -549,7 +580,7 @@ $(document).ready(function() {
             terminos: $('#terminosEditor').trumbowyg('html'),
             detalle: productos,
             total: total,
-            estado: approve ? 'APR' : 'COT'
+            estado: approve ? 'APRO' : 'CLI'
         };
         
         // Mostrar carga

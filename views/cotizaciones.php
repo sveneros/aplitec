@@ -178,13 +178,11 @@ else if(value.estado === 'RECH')
 est = '<span class="badge rounded-pill bg-danger badge-notification">RECHAZADO</span>';
 else if(value.estado === 'APRO')
 est = '<span class="badge rounded-pill bg-success badge-notification">APROBADO</span>';
-else
+else if(value.estado === 'REV')
 est = '<span class="badge rounded-pill bg-warning badge-notification">EN REVISIÓN</span>';
 
 
- est = value.estado === 'CLI' ?
-    '<span class="badge rounded-pill bg-success badge-notification">REGISTRADO POR CLIENTE</span>' :
-    '<span class="badge rounded-pill bg-danger badge-notification">DESHABILITADO</span>';
+ 
 const edi = '<button class="btn btn-primary" onclick="Ver(\'' + value.numero + '\')"><i class="fa fa-eye"></i></button>';
 
 
