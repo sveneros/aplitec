@@ -114,7 +114,7 @@ try {
            
             
             $link->commit();
-
+            $link2 = conectarse();
              // Registrar en auditoría
              $auditData = [
                 'id_documento' => $id_documento,
@@ -122,9 +122,9 @@ try {
                 'estado_anterior' => 'CLI', 
                 'estado_nuevo' => 'APRO',
                 'detalles' => 'Actualización de cotización. Aprobado por administrador',
-                'id_usuario' => $_SESSION['sml2020_svenerossys_usuario_registrado']
+                'id_usuario' => $_SESSION['sml2020_svenerossys_id_usuario_registrado']
             ];
-            if (!registrar_auditoria_cotizacion($link, $auditData)) {
+            if (!registrar_auditoria_cotizacion($link2, $auditData)) {
                 throw new Exception("Error al registrar auditoría");
             }
             
