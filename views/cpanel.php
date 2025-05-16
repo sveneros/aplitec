@@ -25,11 +25,77 @@
                     </div>
                 </div>
                 <!-- Breadcrumb end -->
-
+                <!-- Sección de Reporte Estadístico -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="header-title-text">Reporte Estadístico de Cotizaciones</h5>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <select id="periodoReporte" class="form-select">
+                                            <option value="semanal">Semanal</option>
+                                            <option value="mensual">Mensual</option>
+                                            <option value="trimestral">Trimestral</option>
+                                            <option value="personalizado">Personalizado</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3" id="fechaInicioContainer" style="display:none;">
+                                        <input type="date" id="fechaInicio" class="form-control">
+                                    </div>
+                                    <div class="col-md-3" id="fechaFinContainer" style="display:none;">
+                                        <input type="date" id="fechaFin" class="form-control">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button id="btnGenerarReporte" class="btn btn-primary">Generar Reporte</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="loadingReporte" class="text-center" style="display:none;">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Cargando...</span>
+                                    </div>
+                                    <p>Generando reporte...</p>
+                                </div>
+                                
+                                <!-- Gráfico de Tiempo de Aprobación -->
+                                <div class="row mt-3">
+                                    <div class="col-md-12">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h6>Tiempo Promedio de Aprobación</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div id="tiempoAprobacionChart"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                  
+                                </div>
+                                
+                                <!-- Gráfico de Evolución -->
+                                <div class="row mt-3">
+                                    <div class="col-md-12">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h6>Evolución de Cotizaciones</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div id="evolucionChart"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <!-- Blank start -->
                 <div class="row">
                     
-               
+                    
 
 
                     <!-- order-3-lg -->
@@ -655,3 +721,225 @@
            
         }
     </script>
+
+    <script>
+$(document).ready(function() {
+    // Manejar cambio en el selector de período
+    $('#periodoReporte').change(function() {
+        if ($(this).val() === 'personalizado') {
+            $('#fechaInicioContainer, #fechaFinContainer').show();
+            // Establecer fechas por defecto para personalizado
+            const hoy = new Date().toISOString().split('T')[0];
+            const haceUnMes = new Date();
+            haceUnMes.setMonth(haceUnMes.getMonth() - 1);
+            $('#fechaInicio').val(haceUnMes.toISOString().split('T')[0]);
+            $('#fechaFin').val(hoy);
+        } else {
+            $('#fechaInicioContainer, #fechaFinContainer').hide();
+        }
+    });
+    
+    // Generar reporte al cargar la página
+    generarReporte();
+    
+    // Manejar clic en el botón de generar reporte
+    $('#btnGenerarReporte').click(function() {
+        generarReporte();
+    });
+    
+    function generarReporte() {
+        $('#loadingReporte').show();
+        
+        const periodo = $('#periodoReporte').val();
+        const fechaInicio = $('#fechaInicio').val();
+        const fechaFin = $('#fechaFin').val();
+        
+        $.ajax({
+            url: '../controllers/reporte_cotizaciones_controller.php',
+            type: 'GET',
+            dataType: 'json',
+            data: {
+                periodo: periodo,
+                fecha_inicio: periodo === 'personalizado' ? fechaInicio : null,
+                fecha_fin: periodo === 'personalizado' ? fechaFin : null
+            },
+            success: function(response) {
+                $('#loadingReporte').hide();
+                
+                if (response.success) {
+                    renderizarReporte(response.data);
+                } else {
+                    alert('Error: ' + (response.error || 'No se pudo generar el reporte'));
+                }
+            },
+            error: function(xhr, status, error) {
+                $('#loadingReporte').hide();
+                alert('Error al conectar con el servidor: ' + error);
+            }
+        });
+    }
+    
+    function renderizarReporte(data) {
+        // 1. Gráfico de tiempo de aprobación
+        const tiempoOptions = {
+            series: [{
+                name: 'Tiempo',
+                data: [
+                    Math.round(data.tiempo_aprobacion.tiempo_promedio_horas * 100) / 100,
+                    Math.round(data.tiempo_aprobacion.tiempo_promedio_dias * 100) / 100
+                ]
+            }],
+            chart: {
+                type: 'bar',
+                height: 350,
+                toolbar: {
+                    show: true,
+                    tools: {
+                        download: true
+                    }
+                }
+            },
+            plotOptions: {
+                bar: {
+                    borderRadius: 4,
+                    horizontal: true,
+                }
+            },
+            colors: ['#3498db'],
+            dataLabels: {
+                enabled: true,
+                formatter: function(val) {
+                    return val + (this.seriesIndex === 0 ? ' horas' : ' días');
+                }
+            },
+            xaxis: {
+                categories: ['Horas', 'Días'],
+                title: {
+                    text: 'Tiempo promedio',
+                    style: {
+                        fontSize: '14px',
+                        fontWeight: 'bold'
+                    }
+                }
+            },
+            yaxis: {
+                labels: {
+                    show: true
+                }
+            },
+            title: {
+                text: 'Tiempo promedio desde creación hasta aprobación',
+                align: 'center',
+                style: {
+                    fontSize: '16px'
+                }
+            },
+            tooltip: {
+                y: {
+                    formatter: function(val) {
+                        return val + (this.seriesIndex === 0 ? ' horas' : ' días');
+                    }
+                }
+            }
+        };
+        
+        const tiempoChart = new ApexCharts(document.querySelector("#tiempoAprobacionChart"), tiempoOptions);
+        tiempoChart.render();
+                
+        // 3. Gráfico de evolución (line chart)
+        const fechas = data.evolucion.map(item => item.fecha);
+        const creadas = data.evolucion.map(item => item.creadas);
+        const aprobadas = data.evolucion.map(item => item.aprobadas);
+        
+        const evolucionOptions = {
+            series: [
+                {
+                    name: 'Creadas',
+                    data: creadas
+                },
+                {
+                    name: 'Aprobadas',
+                    data: aprobadas
+                }
+            ],
+            chart: {
+                height: 350,
+                type: 'line',
+                zoom: {
+                    enabled: true
+                },
+                toolbar: {
+                    show: true,
+                    tools: {
+                        download: true,
+                        zoom: true,
+                        zoomin: true,
+                        zoomout: true,
+                        pan: true,
+                        reset: true
+                    }
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'smooth',
+                width: [3, 3]
+            },
+            colors: ['#3498db', '#2ecc71'],
+            xaxis: {
+                type: 'datetime',
+                categories: fechas,
+                labels: {
+                    formatter: function(value) {
+                        return new Date(value).toLocaleDateString();
+                    }
+                }
+            },
+            yaxis: {
+                title: {
+                    text: 'Número de cotizaciones',
+                    style: {
+                        fontSize: '14px',
+                        fontWeight: 'bold'
+                    }
+                }
+            },
+            title: {
+                text: 'Evolución diaria de cotizaciones',
+                align: 'center',
+                style: {
+                    fontSize: '16px'
+                }
+            },
+            legend: {
+                position: 'top'
+            },
+            tooltip: {
+                x: {
+                    formatter: function(value) {
+                        return new Date(value).toLocaleDateString();
+                    }
+                }
+            }
+        };
+        
+        const evolucionChart = new ApexCharts(document.querySelector("#evolucionChart"), evolucionOptions);
+        evolucionChart.render();
+        
+        // Actualizar información del período
+        const periodoTexto = {
+            'semanal': 'Última semana',
+            'mensual': 'Último mes',
+            'trimestral': 'Último trimestre',
+            'personalizado': 'Período personalizado'
+        }[$('#periodoReporte').val()] || 'Período seleccionado';
+        
+        $('.card-header h6').each(function() {
+            const titulo = $(this).text().split('(')[0];
+            $(this).text(titulo + ` (${periodoTexto}: ${data.filtros.fecha_inicio} a ${data.filtros.fecha_fin})`);
+        });
+    }
+});
+</script>

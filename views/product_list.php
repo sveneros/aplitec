@@ -50,6 +50,7 @@ include('../layout/header.php');
                   <th>Categoría</th>
                   <th>Precio BS.</th>
                   <th>Estado</th>
+                  <th>Stock actual</th>
                   <th>Opciones</th>
                 </tr>
               </thead>
@@ -153,7 +154,9 @@ function actualizarTabla() {
                 <td>${value.marca}</td>
                 <td>${value.categoria}</td>
                 <td>${value.puntos}</td>
+                
                 <td>${est}</td>
+                <td>${value.stock_actual}</td>
                 <td>${edi}</td>
             </tr>
         `;

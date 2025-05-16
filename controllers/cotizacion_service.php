@@ -1,4 +1,5 @@
-<?php 
+<?php
+session_start();
 include("conx.php");
 include("funciones.php");
 
@@ -27,7 +28,7 @@ try {
         if($_POST['tipo']=="cliente")
         $estado = "CLI";
         else
-        $estado = "COT";
+        $estado = "REV";
         
         // Validar datos
         if (empty($id_cliente)) {
@@ -74,6 +75,19 @@ try {
         );
         
         logs_db("Se agregó el documento: $numero_documento de tipo: $id_tipo_documento", $_SERVER['PHP_SELF']);
+        $link2 = conectarse();
+             // Registrar en auditoría
+        $auditData = [
+                'id_documento' => $numero_documento,
+                'accion' => 'CREAR COTIZACIÓN',
+                'estado_anterior' => '', 
+                'estado_nuevo' => $estado,
+                'detalles' => 'Creación de cotización desde sistema',
+                'id_usuario' => $_SESSION['sml2020_svenerossys_id_usuario_registrado']
+            ];
+        if (!registrar_auditoria_cotizacion($link2, $auditData)) {
+            throw new Exception("Error al registrar auditoría");
+        }
         
         // Crear kardex para cada producto
         foreach ($productsArr as $product) {
@@ -97,6 +111,8 @@ try {
             );
             
             logs_db("Se agregó el Kardex para el producto: $productId", $_SERVER['PHP_SELF']);
+            
+             
         }
         
         $data['success'] = true;

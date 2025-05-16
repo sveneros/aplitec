@@ -95,6 +95,27 @@ $productId = isset($_GET['id']) ? $_GET['id'] : 0;
             <div class="app-divider-v dashed"></div>
 
             <div class="main-title">
+              <h6>Stock</h6>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                  <div class="mb-3">
+                    <label class="form-label">STOCK ACTUAL<span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="stock_actual" name="stock_actual" min="0" max="9999" required>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="mb-3">
+                    <label class="form-label">STOCK MÍNIMO<span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="stock_minimo" name="stock_minimo" min="0" max="9999" required>
+                  </div>
+                </div>
+            </div>
+
+            <div class="app-divider-v dashed"></div>
+
+            <div class="main-title">
               <h6>Precio</h6>
             </div>
 
@@ -466,6 +487,8 @@ function CargarProducto(productId) {
             $('#editor2').trumbowyg('html', value.producto_descripcion);
             $('#puntos').val(value.puntos);
             $('#estado').val(value.estado).prop('selected', true);
+            $('#stock_minimo').val(value.stock_minimo);
+            $('#stock_actual').val(value.stock_actual);
             
             // Load brand and category
             ObtenerMarcas(value.marca);
@@ -562,6 +585,8 @@ function GuardarProducto() {
     const idCategoria = $('#categories_list option:selected').val();
     const puntos = $('#puntos').val();
     const estado = $('#estado option:selected').val();
+    const stock_actual = $('#stock_actual').val();
+    const stock_minimo = $('#stock_minimo').val();
     const method = elId === "0" || elId === null || elId === "" ? 'POST' : 'PUT';
     
     const data = {
@@ -573,6 +598,8 @@ function GuardarProducto() {
         codigo: codigo,
         puntos: puntos,
         estado: estado,
+        stock_actual: stock_actual,
+        stock_minimo: stock_minimo,
     };
 
     $.ajax({

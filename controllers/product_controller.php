@@ -18,7 +18,7 @@ function getAllProducts() {
     $result = mysqli_query($link, "SELECT p.id, p.nombre as producto_nombre, p.codigo as producto_codigo, 
        p.descripcion as producto_descripcion, p.id_categoria, 
        p.id_marca, m.descripcion as marca, c.descripcion as categoria, 
-       puntos, p.estado,
+       puntos, p.estado, p.stock_actual as stock_actual, p.stock_minimo as stock_minimo,
        (
            SELECT JSON_ARRAYAGG(JSON_OBJECT('ruta', i.ruta, 'id', i.id))
            FROM (
@@ -59,7 +59,7 @@ function getProductById($id) {
     $result = mysqli_query($link, "SELECT p.id, p.nombre as producto_nombre, p.codigo as producto_codigo, 
                                   p.descripcion as producto_descripcion, p.nombre, p.id_categoria, 
                                   p.id_marca, m.descripcion as marca, c.descripcion as categoria, 
-                                  puntos, p.estado 
+                                  puntos, p.estado, p.stock_actual as stock_actual, p.stock_minimo as stock_minimo 
                                   FROM productos as p 
                                   INNER JOIN marcas as m ON p.id_marca = m.id 
                                   INNER JOIN categorias as c ON p.id_categoria = c.id 
@@ -70,15 +70,17 @@ function getProductById($id) {
     return $product;
 }
 
-function createProduct($codigo, $nombre, $descripcion, $id_marca, $id_categoria, $puntos, $estado) {
+function createProduct($codigo, $nombre, $descripcion, $id_marca, $id_categoria, $puntos, $estado, $stock_actual, $stock_minimo) {
     $link = conectarse();
     $codigo = mysqli_real_escape_string($link, $codigo);
     $nombre = mysqli_real_escape_string($link, $nombre);
     $descripcion = mysqli_real_escape_string($link, $descripcion);
     $estado = mysqli_real_escape_string($link, $estado);
+    $stock_actual = (int) $stock_actual;
+    $stock_minimo = (int) $stock_minimo;
 
-    $result = mysqli_query($link, "INSERT INTO productos (codigo, nombre, descripcion, id_marca, id_categoria, puntos, estado) 
-                                  VALUES ('$codigo', '$nombre', '$descripcion', '$id_marca', '$id_categoria', '$puntos', '$estado')");
+    $result = mysqli_query($link, "INSERT INTO productos (codigo, nombre, descripcion, id_marca, id_categoria, puntos, estado, stock_actual, stock_minimo) 
+                                  VALUES ('$codigo', '$nombre', '$descripcion', '$id_marca', '$id_categoria', '$puntos', '$estado', '$stock_actual', '$stock_minimo')");
     
     if ($result) {
         $newId = mysqli_insert_id($link);
@@ -93,12 +95,14 @@ function createProduct($codigo, $nombre, $descripcion, $id_marca, $id_categoria,
     }
 }
 
-function updateProduct($id, $codigo, $nombre, $descripcion, $id_marca, $id_categoria, $puntos, $estado) {
+function updateProduct($id, $codigo, $nombre, $descripcion, $id_marca, $id_categoria, $puntos, $estado, $stock_actual, $stock_minimo) {
     $link = conectarse();
     $codigo = mysqli_real_escape_string($link, $codigo);
     $nombre = mysqli_real_escape_string($link, $nombre);
     $descripcion = mysqli_real_escape_string($link, $descripcion);
     $estado = mysqli_real_escape_string($link, $estado);
+    $stock_actual = (int) $stock_actual;
+    $stock_minimo = (int) $stock_minimo;
     
     $result = mysqli_query($link, "UPDATE productos SET 
                                   codigo = '$codigo', 
@@ -107,7 +111,9 @@ function updateProduct($id, $codigo, $nombre, $descripcion, $id_marca, $id_categ
                                   id_marca = '$id_marca', 
                                   id_categoria = '$id_categoria', 
                                   puntos = $puntos, 
-                                  estado = '$estado' 
+                                  estado = '$estado',
+                                stock_actual = '$stock_actual',
+                                stock_minimo = '$stock_minimo'
                                   WHERE id = $id");
     
     if ($result) {
@@ -161,7 +167,10 @@ switch ($method) {
             $data['id_marca'], 
             $data['id_categoria'], 
             $data['puntos'], 
-            $data['estado']
+            $data['estado'],
+            stock_actual: $data['stock_actual'],
+            stock_minimo: $data['stock_minimo']
+            
         );
         echo json_encode($id);
         break;
@@ -174,7 +183,9 @@ switch ($method) {
             $data['id_marca'], 
             $data['id_categoria'], 
             $data['puntos'], 
-            $data['estado']
+            $data['estado'],
+            stock_actual: $data['stock_actual'],
+            stock_minimo: $data['stock_minimo']
         );
         echo json_encode($result);
         break;
