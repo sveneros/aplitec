@@ -88,6 +88,7 @@ include('../layout/header.php');
                   <th>Total</th>
                   <th>Estado</th>
                   <th>Ver</th>
+                  <th>Venta</th>
                   <th>Email</th>
                   
                 </tr>
@@ -177,7 +178,10 @@ else if(value.estado === 'APRO')
 est = '<span class="badge rounded-pill bg-success badge-notification">APROBADO</span>';
 else
 est = '<span class="badge rounded-pill bg-warning badge-notification">EN REVISIÓN</span>';
+
 const edi = '<button class="btn btn-primary" onclick="Ver(\'' + value.numero + '\')"><i class="fa fa-eye"></i></button> <button class="btn btn-warning" onclick="Editar(\'' + value.numero + '\')"><i class="fa fa-pencil"></i></button>';
+
+const verVenta = '<button class="btn btn-info" onclick="VerParaVenta(\'' + value.numero + '\')"><i class="fa fa-eye"></i></button>';
 
 const email1 = '<button class="btn btn-primary" onclick="Email1(\'' + value.numero + '\')"data-bs-toggle="modal" data-bs-target="#ModalEmail1"><i class="fa fa-message"></i></button>';
 html += `
@@ -188,6 +192,7 @@ html += `
         <td>${value.total}</td>
         <td>${est}</td>
         <td>${edi}</td>
+        <td>${verVenta}</td>
         <td>${email1}</td> 
     </tr>
     `;
@@ -266,6 +271,10 @@ $('#basic-1').DataTable();
     }).always(() => {
         $('#btn_submit_email1').show(); // Mostrar el botón de enviar nuevamente
     });
+}
+
+function VerParaVenta(id) {
+    window.location.href = 'quote_view.php?id=' + encodeURIComponent(id);
 }
 </script>
 

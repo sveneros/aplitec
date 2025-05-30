@@ -76,7 +76,63 @@ function getQuoteById($id) {
     return $Log;
 }
 
-
+function getQuoteDetail($id) {
+    global $data;
+    $link = conectarse();
+    
+    // Obtener cabecera
+    $sql = "SELECT d.id_documento as numero, 
+                   CONCAT(c.nombre, ' ', c.apellido1, ' ', IFNULL(c.apellido2, '')) as nombre_cliente,
+                   d.fecha, 
+                   d.total,
+                   d.estado,
+                   d.glosa,
+                   c.id as id_cliente,
+                   c.nit,
+                   c.razon_social,
+                   c.email,
+                   c.cel1 as telefono,
+                   c.cel2 as celular,
+                   c.direccion
+            FROM documentos d
+            JOIN clientes c ON d.id_cliente = c.id
+            WHERE d.id_tipo_documento = 5 AND d.id_documento = ?";
+    
+    $stmt = mysqli_prepare($link, $sql);
+    mysqli_stmt_bind_param($stmt, "i", $id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $cabecera = mysqli_fetch_assoc($result);
+    
+    if (!$cabecera) {
+        throw new Exception("Cotización no encontrada");
+    }
+    
+    // Obtener detalle
+    $sql = "SELECT producto, cantidad, precio_unitario, precio_total 
+            FROM kardex 
+            WHERE id_tipo_documento = 5 AND id_documento = ?";
+    
+    $stmt = mysqli_prepare($link, $sql);
+    mysqli_stmt_bind_param($stmt, "i", $id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $detalle = array();
+    
+    while ($row = mysqli_fetch_assoc($result)) {
+        $detalle[] = $row;
+    }
+    
+    mysqli_close($link);
+    
+    $data['success'] = true;
+    $data['data'] = array(
+        'cabecera' => $cabecera,
+        'detalle' => $detalle
+    );
+    
+    return $data;
+}
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -84,7 +140,7 @@ switch ($method) {
     case 'GET':
         if (isset($_GET['id'])) {
             $id = $_GET['id'];
-            $Log = getLogById($id);
+            $Log = getQuoteDetail($id);
             echo json_encode($Log);
         }
         else if (isset($_GET['client_id'])) {
