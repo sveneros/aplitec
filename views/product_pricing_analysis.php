@@ -21,18 +21,7 @@
     </div>
   </div>
 
-  <div class="row">
-    <div class="col-md-12">
-      <div class="card">
-        <div class="card-header">
-          <h5>Comparación de Precios Actuales vs Sugeridos</h5>
-        </div>
-        <div class="card-body">
-          <div id="priceComparisonChart" style="height: 350px;"></div>
-        </div>
-      </div>
-    </div>
-  </div>
+  
 
   <div class="row mt-4">
     <div class="col-md-6">
@@ -77,6 +66,19 @@
       </div>
     </div>
   </div>
+
+  <!-- <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h5>Comparación de Precios Actuales vs Sugeridos</h5>
+        </div>
+        <div class="card-body">
+          <div id="priceComparisonChart" style="height: 350px;"></div>
+        </div>
+      </div>
+    </div>
+  </div> -->
 
   <div class="row mt-4">
     <div class="col-md-12">
@@ -316,8 +318,8 @@ $(document).ready(function() {
             },
             tooltip: {
                 y: {
-                    formatter: function(value, { seriesIndex, dataPointIndex, w }) {
-                        const total = w.config.series.reduce((a, b) => a + b, 0);
+                    formatter: function(value) {
+                        const total = higherCurrent + higherSuggested + equalPrices;
                         const percentage = Math.round((value / total) * 100);
                         return value + ' productos (' + percentage + '%)';
                     }
@@ -331,8 +333,8 @@ $(document).ready(function() {
                             total: {
                                 show: true,
                                 label: 'Total Productos',
-                                formatter: function(w) {
-                                    return w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                                formatter: function() {
+                                    return higherCurrent + higherSuggested + equalPrices;
                                 }
                             }
                         }

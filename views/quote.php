@@ -18,9 +18,9 @@ include('../layout/header.php');
                             <i class="ti ti-currency-dollar"></i> <span id="btnConvertText">Mostrar en Dólares</span>
                         </button>
                         <!-- Botones de edición -->
-                        <button type="button" class="btn btn-lg ms-2" id="btnEditQuote">
+                        <!-- <button type="button" class="btn btn-lg ms-2" id="btnEditQuote">
                             <i class="ti ti-edit"></i> Editar Cotización
-                        </button>
+                        </button> -->
                         <button type="button" class="btn btn-lg ms-2 btn-success" id="btnApproveQuote" style="display: none;">
                             <i class="ti ti-check"></i> Aprobar Cotización
                         </button>

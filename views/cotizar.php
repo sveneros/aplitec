@@ -57,6 +57,8 @@ include('../layout/header_clientes.php');
     </div>
   </div>
 
+  
+
   <!-- Action buttons -->
   <div class="row mt-3">
     <div class="col-12">
@@ -78,6 +80,33 @@ include('../layout/header_clientes.php');
     </div>
   </div>
 </div>
+
+  <!-- Product Suggestions Section -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5>Productos sugeridos</h5>
+          <small class="text-muted">Basado en cotizaciones de otros clientes</small>
+        </div>
+        <div class="card-body">
+          <div id="suggestions-loading" class="text-center py-3">
+            <div class="spinner-border text-primary"></div>
+            <p>Analizando sugerencias...</p>
+          </div>
+          <div id="suggestions-container" class="d-none">
+            <div class="row" id="suggestions-row">
+              <!-- Las sugerencias se cargarán aquí -->
+            </div>
+          </div>
+          <div id="no-suggestions" class="text-center py-3 d-none">
+            <i class="ti ti-info-circle f-s-48 text-muted mb-3"></i>
+            <p>No hay sugerencias disponibles en este momento</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
 <!-- Modal de confirmación -->
 <div class="modal fade" id="confirmQuoteModal" tabindex="-1" aria-hidden="true">
@@ -148,6 +177,9 @@ $(document).ready(function() {
 // Cargar productos del carrito
 function loadCartItems() {
   const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  // Cargar sugerencias basadas en los productos del carrito
+  const productIds = cart.map(item => item.productId);
+  loadProductSuggestions(productIds);
   
   if (cart.length === 0) {
     $('#cart-items-table').html(`
@@ -476,6 +508,141 @@ function sendQuoteRequest(productsArr) {
     }
   });
 }
+
+// Función para cargar sugerencias de productos
+function loadProductSuggestions(productIds) {
+  if (productIds.length === 0) {
+    $('#suggestions-loading').addClass('d-none');
+    $('#no-suggestions').removeClass('d-none');
+    return;
+  }
+
+  $.ajax({
+    url: '../controllers/suggestions_controller.php',
+    type: 'POST',
+    dataType: 'json',
+    data: JSON.stringify({ productIds: productIds }),
+    contentType: 'application/json',
+    success: function(response) {
+      $('#suggestions-loading').addClass('d-none');
+      
+      if (response.success && response.suggestions.length > 0) {
+        renderProductSuggestions(response.suggestions);
+        $('#suggestions-container').removeClass('d-none');
+      } else {
+        $('#no-suggestions').removeClass('d-none');
+      }
+    },
+    error: function() {
+      $('#suggestions-loading').addClass('d-none');
+      $('#no-suggestions').removeClass('d-none');
+    }
+  });
+}
+
+// Función para renderizar las sugerencias de productos
+function renderProductSuggestions(suggestions) {
+  const $suggestionsRow = $('#suggestions-row');
+  $suggestionsRow.empty();
+  
+  suggestions.forEach(product => {
+    const imageUrl = '../assets/images/ecommerce/no-image.jpg';
+    
+    $suggestionsRow.append(`
+      <div class="col-md-4 mb-3">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="d-flex flex-column h-100">
+              <div class="text-center mb-3">
+                <img src="${imageUrl}" alt="${product.producto_nombre}" 
+                     class="rounded" width="120" height="120" 
+                     onerror="this.src='../assets/images/ecommerce/no-image.jpg'">
+              </div>
+              <h6 class="mb-1">${product.producto_nombre}</h6>
+              <small class="text-muted mb-2">${product.marca || 'Marca no especificada'}</small>
+              <p class="small text-muted flex-grow-1">${product.producto_descripcion || 'Sin descripción disponible'}</p>
+              <button class="btn btn-sm btn-primary add-suggestion" data-product-id="${product.id}">
+                <i class="ti ti-plus me-1"></i> Agregar a cotización
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `);
+  });
+  
+  // Asignar evento a los botones de agregar
+  $('.add-suggestion').click(function() {
+    const productId = $(this).data('product-id');
+    addSuggestedProductToCart(productId);
+  });
+}
+
+// Función para agregar un producto sugerido al carrito
+function addSuggestedProductToCart(productId) {
+  // Mostrar loading
+  const $btn = $(`.add-suggestion[data-product-id="${productId}"]`);
+  $btn.prop('disabled', true).html('<i class="ti ti-loader me-1"></i> Agregando...');
+  
+  // Obtener detalles del producto
+  $.ajax({
+    url: '../controllers/product_controller.php',
+    type: 'GET',
+    data: { id: productId },
+    dataType: 'json',
+    success: function(product) {
+      if (product && product.id) {
+        // Agregar al carrito
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        
+        // Verificar si el producto ya está en el carrito
+        const existingItem = cart.find(item => item.productId == product.id);
+        
+        if (existingItem) {
+          existingItem.quantity += 1;
+        } else {
+          cart.push({
+            productId: product.id,
+            quantity: 1,
+            image: product.imagenes && product.imagenes.length > 0 ? product.imagenes[0].ruta : null
+          });
+        }
+        
+        localStorage.setItem('cart', JSON.stringify(cart));
+        
+        // Actualizar contador en el header si existe
+        if ($('.header-cart .badge-notification').length) {
+          const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+          $('.header-cart .badge-notification').text(totalItems);
+        }
+        
+        // Mostrar feedback
+        Swal.fire({
+          icon: 'success',
+          title: 'Producto agregado',
+          text: `${product.producto_nombre} ha sido agregado a tu cotización`,
+          timer: 1500,
+          showConfirmButton: false
+        });
+        
+        // Recargar el carrito
+        loadCartItems();
+        
+        // Actualizar sugerencias
+        const productIds = cart.map(item => item.productId);
+        loadProductSuggestions(productIds);
+      } else {
+        Swal.fire('Error', 'No se pudo obtener la información del producto', 'error');
+        $btn.prop('disabled', false).html('<i class="ti ti-plus me-1"></i> Agregar a cotización');
+      }
+    },
+    error: function() {
+      Swal.fire('Error', 'Error al cargar el producto', 'error');
+      $btn.prop('disabled', false).html('<i class="ti ti-plus me-1"></i> Agregar a cotización');
+    }
+  });
+}
+
 </script>
 
 <style>

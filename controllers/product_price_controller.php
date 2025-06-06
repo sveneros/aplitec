@@ -161,6 +161,7 @@ function getPricingAnalysisData() {
             pcf.storage_cost,
             pcf.insurance,
             pcf.customs_fees,
+            pcf.currency_exchange_rate,
             pcf.profit_margin,
             pcf.market_demand_factor,
             pcf.competition_factor,
