@@ -544,7 +544,7 @@ function updateCharts(response, method) {
   }];
   
   // Agregar datos históricos si existen
-  if (historicalData && historicalData.length > 0) {
+  /* if (historicalData && historicalData.length > 0) {
     series.push({
       name: 'Datos históricos',
       data: historicalData.map(d => [parseFloat(d.price), d.quantity_sold]),
@@ -553,7 +553,7 @@ function updateCharts(response, method) {
         size: 6
       }
     });
-  }
+  } */
   
   window.predictionChart.updateOptions({
     series: series,
@@ -645,7 +645,7 @@ function updateComparisonChart(response) {
   }
   
   // Agregar datos históricos si existen
-  if (response.linear_regression.historical_data && response.linear_regression.historical_data.length > 0) {
+  /* if (response.linear_regression.historical_data && response.linear_regression.historical_data.length > 0) {
     predictionSeries.push({
       name: 'Datos históricos',
       data: response.linear_regression.historical_data.map(d => [parseFloat(d.price), d.quantity_sold]),
@@ -654,7 +654,7 @@ function updateComparisonChart(response) {
         size: 6
       }
     });
-  }
+  } */
   
   window.predictionChart.updateOptions({
     series: predictionSeries,
