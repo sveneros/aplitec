@@ -67,8 +67,9 @@ function calculateSuggestedPrice($productId) {
     // Cálculo básico del precio
     $basicPrice = $totalCosts * (1 + $profitMargin);
     
-    // Aplicar factores de mercado (IA simple)
-    $suggestedPrice = $basicPrice * $marketFactor * $competitionFactor;
+    // Aplicar factores de mercado con límite máximo
+    $adjustmentFactor = min($marketFactor * $competitionFactor, 1.3); // Máximo 30% de ajuste
+    $suggestedPrice = $basicPrice * $adjustmentFactor;
     
     // Redondear a 2 decimales
     return round($suggestedPrice, 2);
